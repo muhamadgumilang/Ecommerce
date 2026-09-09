@@ -18,6 +18,7 @@ class Product extends Model
         'price',
         'stock',
         'description',
+        'image', // <-- Tambahkan baris ini
     ];
 
     public function getRouteKeyName()

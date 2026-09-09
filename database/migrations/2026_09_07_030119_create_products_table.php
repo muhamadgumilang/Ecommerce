@@ -31,6 +31,7 @@ return new class extends Migration
             $table->decimal('price', 12, 2);
             $table->integer('stock')->default(0);
             $table->text('description')->nullable();
+            $table->string('image')->nullable(); // <-- Kolom foto produk ditambahkan di sini
             $table->timestamps();
         });
     }

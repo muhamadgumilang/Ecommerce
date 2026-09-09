@@ -6,19 +6,17 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\OrderController as UserOrderController;
-// Import Admin Controllers dengan Alias
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
-// Halaman Utama (Landing Page) - Bisa diakses siapa saja
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+// Halaman Utama (Landing Page) - Mengambil data produk via HomeController
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::apiResource('catalogs', CatalogController::class)->only(['index', 'show']);
 
-// Tambahkan baris ini di routes/web.php
+// Route Dashboard Redirect ke Admin
 Route::get('/dashboard', function () {
     return redirect()->route('admin.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

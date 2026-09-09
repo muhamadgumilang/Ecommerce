@@ -7,42 +7,76 @@
         </ul>
     </div>
 @endif
-<form action="{{ $action }}" method="POST">@csrf @if ($method !== 'POST')
+
+<!-- Tambahkan enctype="multipart/form-data" agar form bisa mengirim file -->
+<form action="{{ $action }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    @if ($method !== 'POST')
         @method($method)
     @endif
-    <div class="mb-4"><label for="product_name" class="block text-sm font-medium text-slate-700 mb-2">Nama
-            Produk</label><input type="text" name="product_name" id="product_name"
+
+    <div class="mb-4">
+        <label for="product_name" class="block text-sm font-medium text-slate-700 mb-2">Nama Produk</label>
+        <input type="text" name="product_name" id="product_name"
             value="{{ old('product_name', $product->product_name ?? '') }}" required maxlength="150"
             class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm shadow-sm">
     </div>
-    <div class="mb-4"><label for="category_id"
-            class="block text-sm font-medium text-slate-700 mb-2">Kategori</label><select name="category_id"
-            id="category_id" required
+
+    <div class="mb-4">
+        <label for="category_id" class="block text-sm font-medium text-slate-700 mb-2">Kategori</label>
+        <select name="category_id" id="category_id" required
             class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm shadow-sm">
             <option value="">Pilih kategori</option>
             @foreach ($categories as $category)
-                <option value="{{ $category->category_id }}" @selected(old('category_id', $product->category_id ?? '') == $category->category_id)>{{ $category->name }}</option>
+                <option value="{{ $category->category_id }}" @selected(old('category_id', $product->category_id ?? '') == $category->category_id)>
+                    {{ $category->name }}
+                </option>
             @endforeach
-        </select></div>
+        </select>
+    </div>
+
+    <!-- Input Foto Produk -->
+    <div class="mb-4">
+        <label for="image" class="block text-sm font-medium text-slate-700 mb-2">Foto Produk</label>
+
+        @if (!empty($product->image))
+            <div class="mb-2 flex items-center space-x-3">
+                <div class="w-16 h-16 rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+                    <img src="{{ asset('storage/' . $product->image) }}" alt="Preview" class="w-full h-full object-cover">
+                </div>
+                <span class="text-xs text-slate-500">Foto saat ini (biarkan kosong jika tidak ingin mengubah)</span>
+            </div>
+        @endif
+
+        <input type="file" name="image" id="image" accept="image/*"
+            class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+    </div>
+
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div><label for="price" class="block text-sm font-medium text-slate-700 mb-2">Harga</label><input
-                type="number" name="price" id="price" value="{{ old('price', $product->price ?? '') }}" required
+        <div>
+            <label for="price" class="block text-sm font-medium text-slate-700 mb-2">Harga</label>
+            <input type="number" name="price" id="price" value="{{ old('price', $product->price ?? '') }}" required
                 min="0" step="0.01"
                 class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm shadow-sm">
         </div>
-        <div><label for="stock" class="block text-sm font-medium text-slate-700 mb-2">Stok</label><input
-                type="number" name="stock" id="stock" value="{{ old('stock', $product->stock ?? 0) }}" required
+        <div>
+            <label for="stock" class="block text-sm font-medium text-slate-700 mb-2">Stok</label>
+            <input type="number" name="stock" id="stock" value="{{ old('stock', $product->stock ?? 0) }}" required
                 min="0"
                 class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm shadow-sm">
         </div>
     </div>
-    <div class="mt-4"><label for="description" class="block text-sm font-medium text-slate-700 mb-2">Deskripsi</label>
+
+    <div class="mt-4">
+        <label for="description" class="block text-sm font-medium text-slate-700 mb-2">Deskripsi</label>
         <textarea name="description" id="description" rows="4"
             class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm shadow-sm">{{ old('description', $product->description ?? '') }}</textarea>
     </div>
-    <div class="flex justify-end space-x-3 mt-6"><a href="{{ route('admin.products.index') }}"
-            class="px-5 py-2.5 bg-slate-100 text-slate-600 rounded-xl text-sm font-medium">Batal</a><button
-            type="submit"
+
+    <div class="flex justify-end space-x-3 mt-6">
+        <a href="{{ route('admin.products.index') }}"
+            class="px-5 py-2.5 bg-slate-100 text-slate-600 rounded-xl text-sm font-medium">Batal</a>
+        <button type="submit"
             class="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700">{{ $submitLabel }}</button>
     </div>
 </form>
