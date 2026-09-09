@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-<<<<<<< Updated upstream
 use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Http\Request;
@@ -43,11 +42,3 @@ class PaymentController extends Controller
         return redirect()->route('orders.index')->with('success', 'Pembayaran berhasil dikirim! Menunggu verifikasi admin.');
     }
 }
-=======
-use Illuminate\Http\Request;
-
-class PaymentController extends Controller
-{
-    //
-}
->>>>>>> Stashed changes

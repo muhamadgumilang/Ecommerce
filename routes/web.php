@@ -1,20 +1,22 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\OrderController as UserOrderController;
+// Import Admin Controllers dengan Alias
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-// Import Admin Controllers dengan Alias
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\OrderController as AdminOrderController;
-
 // Halaman Utama (Landing Page) - Bisa diakses siapa saja
 Route::get('/', function () {
     return view('home');
-});
+})->name('home');
+
+Route::apiResource('catalogs', CatalogController::class)->only(['index', 'show']);
 
 // Tambahkan baris ini di routes/web.php
 Route::get('/dashboard', function () {
@@ -27,6 +29,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     Route::resource('categories', CategoryController::class);
     Route::resource('products', ProductController::class);
+    Route::apiResource('catalogs', CatalogController::class)->except(['index', 'show']);
     Route::resource('orders', AdminOrderController::class)->except(['create', 'store']);
 });
 

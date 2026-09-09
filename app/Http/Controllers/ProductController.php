@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers;
 
-<<<<<<< Updated upstream
 use App\Models\Product;
 use App\Models\Category;
-=======
->>>>>>> Stashed changes
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-<<<<<<< Updated upstream
     public function index(Request $request)
     {
         $query = Product::with('category');
@@ -33,7 +29,3 @@ class ProductController extends Controller
         return view('products.show', compact('product'));
     }
 }
-=======
-    //
-}
->>>>>>> Stashed changes

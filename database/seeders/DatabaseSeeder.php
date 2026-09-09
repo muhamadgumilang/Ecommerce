@@ -117,8 +117,4 @@ class DatabaseSeeder extends Seeder
             'payment_date' => now(),
         ]);
     }
-<<<<<<< Updated upstream
 }
-=======
-}   
->>>>>>> Stashed changes
