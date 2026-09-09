@@ -23,12 +23,12 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|unique:categories,category_name',
+            'name' => 'required|string|max:255|unique:categories,name',
         ]);
 
         Category::create([
-            'category_name' => $request->name,
-            'slug'          => Str::slug($request->name),
+            'name' => $request->name,
+            'slug' => Str::slug($request->name), // ✅ Otomatis buat slug (misal: "Sepatu Pria" -> "sepatu-pria")
         ]);
 
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil ditambahkan.');
@@ -45,9 +45,9 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255|unique:categories,name,' . $category->category_id . ',category_id',
         ]);
 
+        // Hapus 'slug' jika memang tabel categories kamu tidak memiliki kolom slug
         $category->update([
             'name' => $request->name,
-            'slug' => Str::slug($request->name),
         ]);
 
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil diperbarui.');
