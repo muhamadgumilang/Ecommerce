@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -26,27 +24,20 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,category_id',
+            'product_name' => 'required|string|max:150',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'description' => 'nullable|string',
         ]);
 
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('products', 'public');
-        }
-
         Product::create([
-            'category_id' => $request->category_id,
-            'name' => $request->name,
-            'slug' => Str::slug($request->name),
-            'price' => $request->price,
-            'stock' => $request->stock,
-            'image' => $imagePath,
-            'description' => $request->description,
+            'seller_id' => $request->user()->user_id,
+            'category_id' => $request->integer('category_id'),
+            'product_name' => $request->product_name,
+            'price' => $request->input('price'),
+            'stock' => $request->integer('stock'),
+            'description' => $request->input('description'),
         ]);
 
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil ditambahkan.');
@@ -61,30 +52,19 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,category_id',
+            'product_name' => 'required|string|max:150',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'description' => 'nullable|string',
         ]);
 
-        $imagePath = $product->image;
-        if ($request->hasFile('image')) {
-            if ($imagePath && Storage::disk('public')->exists($imagePath)) {
-                Storage::disk('public')->delete($imagePath);
-            }
-            $imagePath = $request->file('image')->store('products', 'public');
-        }
-
         $product->update([
-            'category_id' => $request->category_id,
-            'name' => $request->name,
-            'slug' => Str::slug($request->name),
-            'price' => $request->price,
-            'stock' => $request->stock,
-            'image' => $imagePath,
-            'description' => $request->description,
+            'category_id' => $request->integer('category_id'),
+            'product_name' => $request->product_name,
+            'price' => $request->input('price'),
+            'stock' => $request->integer('stock'),
+            'description' => $request->input('description'),
         ]);
 
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil diperbarui.');
@@ -92,10 +72,8 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        if ($product->image && Storage::disk('public')->exists($product->image)) {
-            Storage::disk('public')->delete($product->image);
-        }
-
+        $product->cartItems()->delete();
+        $product->orderDetails()->delete();
         $product->delete();
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil dihapus.');
     }
