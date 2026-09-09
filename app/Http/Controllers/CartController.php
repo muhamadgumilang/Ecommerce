@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-<<<<<<< Updated upstream
 use App\Models\Cart;
 use App\Models\CartItem;
 use Illuminate\Http\Request;
@@ -53,11 +52,3 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Item berhasil dihapus dari keranjang.');
     }
 }
-=======
-use Illuminate\Http\Request;
-
-class CartController extends Controller
-{
-    //
-}
->>>>>>> Stashed changes

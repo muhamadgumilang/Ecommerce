@@ -11,9 +11,9 @@ class Category extends Model
 
     protected $primaryKey = 'category_id';
 
+    // Sesuaikan dengan nama kolom yang ada di database MySQL Anda
     protected $fillable = [
-        'name',
-        'slug',
+        'category_name',
     ];
 
     public function getRouteKeyName()
@@ -21,7 +21,7 @@ class Category extends Model
         return 'category_id';
     }
 
-    // TAMBAHKAN RELASI INI
+    // RELASI KE PRODUCT
     public function products()
     {
         return $this->hasMany(Product::class, 'category_id', 'category_id');

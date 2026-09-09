@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-<<<<<<< Updated upstream
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Order;
@@ -101,11 +100,3 @@ class OrderController extends Controller
         return view('orders.index', compact('orders'));
     }
 }
-=======
-use Illuminate\Http\Request;
-
-class OrderController extends Controller
-{
-    //
-}
->>>>>>> Stashed changes
