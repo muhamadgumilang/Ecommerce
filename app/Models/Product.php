@@ -20,6 +20,11 @@ class Product extends Model
         'description',
     ];
 
+    public function getRouteKeyName()
+    {
+        return 'product_id';
+    }
+
     public function seller()
     {
         return $this->belongsTo(User::class, 'seller_id', 'user_id');
