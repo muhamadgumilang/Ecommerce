@@ -9,12 +9,13 @@ use App\Http\Controllers\OrderController as UserOrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Admin\DashboardController; // Pastikan controller ini di-import
 use Illuminate\Support\Facades\Route;
 
 // Halaman Utama (Landing Page) - Mengambil data produk via HomeController
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::apiResource('catalogs', CatalogController::class)->only(['index', 'show']);
+Route::apiResource('catalog', CatalogController::class)->only(['index', 'show']);
 
 // Route Dashboard Redirect ke Admin
 Route::get('/dashboard', function () {
@@ -23,7 +24,8 @@ Route::get('/dashboard', function () {
 
 // Route Manajemen Admin (Dashboard, Kategori, Produk, Pesanan Admin)
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+    // Diubah dari Route::view menjadi pemanggilan DashboardController@index
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('categories', CategoryController::class);
     Route::resource('products', ProductController::class);

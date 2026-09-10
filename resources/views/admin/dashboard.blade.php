@@ -10,11 +10,11 @@
 
             <!-- Statistik Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Total Produk -->
+                <!-- Total Produk (Dinamis dari Database) -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-indigo-500">
                     <div class="text-sm font-medium text-gray-500">Total Produk</div>
-                    <div class="mt-2 text-3xl font-bold text-gray-900">120</div>
-                    <div class="mt-1 text-xs text-green-600 font-semibold">+12 produk baru bulan ini</div>
+                    <div class="mt-2 text-3xl font-bold text-gray-900">{{ $totalProducts }}</div>
+                    <div class="mt-1 text-xs text-green-600 font-semibold">Produk aktif dalam sistem</div>
                 </div>
 
                 <!-- Total Pesanan -->
@@ -32,26 +32,33 @@
                 </div>
             </div>
 
-            <!-- Panel Akses Cepat / Manajemen -->
+            <!-- Panel Akses Cepat / Manajemen (Navigasi dengan Route yang Valid) -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-bold mb-4">Navigasi Pengelolaan Admin</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                        <a href="#" class="p-4 bg-gray-50 hover:bg-indigo-50 border border-gray-200 rounded-lg text-center transition">
+                        <!-- Kelola Produk -->
+                        <a href="{{ route('admin.products.index') }}" class="p-4 bg-gray-50 hover:bg-indigo-50 border border-gray-200 rounded-lg text-center transition">
                             <span class="text-2xl">📦</span>
                             <h4 class="mt-2 font-semibold text-gray-700">Kelola Produk</h4>
                         </a>
-                        <a href="#" class="p-4 bg-gray-50 hover:bg-indigo-50 border border-gray-200 rounded-lg text-center transition">
+
+                        <!-- Daftar Pesanan Admin -->
+                        <a href="{{ route('admin.orders.index') }}" class="p-4 bg-gray-50 hover:bg-indigo-50 border border-gray-200 rounded-lg text-center transition">
                             <span class="text-2xl">📑</span>
                             <h4 class="mt-2 font-semibold text-gray-700">Daftar Pesanan</h4>
                         </a>
-                        <a href="#" class="p-4 bg-gray-50 hover:bg-indigo-50 border border-gray-200 rounded-lg text-center transition">
+
+                        <!-- Kategori -->
+                        <a href="{{ route('admin.categories.index') }}" class="p-4 bg-gray-50 hover:bg-indigo-50 border border-gray-200 rounded-lg text-center transition">
                             <span class="text-2xl">🏷️</span>
                             <h4 class="mt-2 font-semibold text-gray-700">Kategori</h4>
                         </a>
-                        <a href="#" class="p-4 bg-gray-50 hover:bg-indigo-50 border border-gray-200 rounded-lg text-center transition">
-                            <span class="text-2xl">👥</span>
-                            <h4 class="mt-2 font-semibold text-gray-700">Manajemen User</h4>
+
+                        <!-- Katalog Admin / Opsi Lain -->
+                        <a href="{{ route('catalog.index') }}" class="p-4 bg-gray-50 hover:bg-indigo-50 border border-gray-200 rounded-lg text-center transition">
+                            <span class="text-2xl">📁</span>
+                            <h4 class="mt-2 font-semibold text-gray-700">Manajemen Katalog</h4>
                         </a>
                     </div>
                 </div>

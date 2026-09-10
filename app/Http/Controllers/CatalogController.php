@@ -2,22 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Catalog;
+use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View; // Tambahkan namespace View
 
 class CatalogController extends Controller
 {
-    public function index(): JsonResponse
+    // Ubah return type menjadi View atau gabungkan jika masih dipakai untuk API
+    public function index(): View
     {
-        return response()->json(
-            Catalog::query()
-                ->where('is_active', true)
-                ->latest()
-                ->get()
-        );
+        // Mengambil data dari tabel products
+        $products = Product::query()
+            ->latest()
+            ->paginate(12);
+
+        return view('catalog.index', compact('products'));
     }
 
+    // Method lainnya tetap sama...
     public function show(Catalog $catalog): JsonResponse
     {
         abort_unless($catalog->is_active, 404);

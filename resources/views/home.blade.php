@@ -33,7 +33,7 @@
                     <!-- Tombol Navigasi Kanan (Ditambah Menu Katalog) -->
                     <nav class="flex items-center space-x-4">
                         <!-- Tautan ke Katalog -->
-                        <a href="{{ route('catalogs.index') }}" class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition">
+                        <a href="{{ route('catalog.index') }}" class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition">
                             Katalog
                         </a>
 
