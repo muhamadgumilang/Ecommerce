@@ -17,6 +17,8 @@ class PaymentController extends Controller
             return redirect()->route('orders.index')->with('error', 'Order ini sudah memiliki pembayaran.');
         }
 
+        $order->load(['orderDetails.product', 'checkout']);
+
         return view('payments.create', compact('order'));
     }
 

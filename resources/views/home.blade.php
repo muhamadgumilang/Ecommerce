@@ -24,64 +24,47 @@
 
         <!-- Header / Navbar (Nuansa Putih & Border Halus) -->
         <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 shadow-sm">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                 <!-- Logo / Judul Brand -->
-                <div class="flex items-center space-x-3">
-                    <div
-                        class="bg-blue-600 text-white p-2.5 rounded-xl font-bold text-sm tracking-wide shadow-md shadow-blue-600/20">
-                        E-STORE
-                    </div>
-                    <span class="font-bold text-slate-800 text-base tracking-tight hidden sm:inline">Marketplace
-                        System</span>
-                </div>
+                <a href="{{ route('home') }}" class="font-bold text-lg text-blue-600 flex items-center gap-2">
+                    <span class="bg-blue-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm shadow-sm">Z</span>
+                    <span>Zenthercraft</span>
+                </a>
 
-                <!-- Tombol Navigasi Kanan (Ditambah Menu Katalog) -->
-                <nav class="flex items-center space-x-4">
-                    <!-- Tautan ke Katalog -->
-                    <a href="{{ route('catalog.index') }}"
-                        class="text-sm font-semibold text-slate-600 hover:text-blue-600 transition">
+                <!-- Tombol Navigasi Kanan (Ditambah Menu Katalog & Pesanan) -->
+                <nav class="flex items-center gap-4 sm:gap-6">
+                    <a href="{{ route('home') }}" class="text-sm font-semibold text-blue-600">
+                        Beranda
+                    </a>
+                    <a href="{{ route('catalog.index') }}" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition">
                         Katalog
                     </a>
                     @auth
-                        <a href="{{ route('cart.index') }}"
-                            class="text-xl leading-none text-slate-600 hover:text-blue-600 transition" title="Keranjang"
-                            aria-label="Keranjang">
+                        <a href="{{ route('orders.index') }}" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition">
+                            Pesanan Saya
+                        </a>
+                        <a href="{{ route('cart.index') }}" class="text-xl leading-none text-slate-600 hover:text-blue-600 transition" title="Keranjang" aria-label="Keranjang">
                             &#128722;
                         </a>
-                    @else
-                        <a href="{{ route('login') }}"
-                            class="text-xl leading-none text-slate-600 hover:text-blue-600 transition" title="Keranjang"
-                            aria-label="Keranjang">
-                            &#128722;
-                        </a>
-                    @endauth
-
-                    @auth
                         @if (Auth::user()->role === 'Admin')
-                            <a href="{{ url('/dashboard') }}"
-                                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-xs uppercase tracking-wider transition shadow-md shadow-blue-600/20">
-                                Admin Dashboard
+                            <a href="{{ url('/dashboard') }}" class="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition">
+                                Admin
                             </a>
                         @else
-                            <span class="text-sm font-medium text-slate-600">Halo, <strong
-                                    class="text-slate-900">{{ Auth::user()->name }}</strong></span>
+                            <span class="text-xs text-slate-500 hidden md:inline">Halo, <strong class="text-slate-800">{{ Auth::user()->name }}</strong></span>
                         @endif
-
                         <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf
-                            <button type="submit"
-                                class="px-3 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 transition">
-                                Logout
+                            <button type="submit" class="text-xs font-medium text-red-600 hover:text-red-700 transition">
+                                Keluar
                             </button>
                         </form>
                     @else
-                        <a href="{{ route('login') }}"
-                            class="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-blue-600 transition">
+                        <a href="{{ route('login') }}" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition">
                             Masuk
                         </a>
                         @if (Route::has('register'))
-                            <a href="{{ route('register') }}"
-                                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-xs uppercase tracking-wider transition shadow-md shadow-blue-600/20">
+                            <a href="{{ route('register') }}" class="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl hover:bg-blue-700 transition">
                                 Daftar
                             </a>
                         @endif
@@ -216,8 +199,8 @@
         </main>
 
         <!-- Footer -->
-        <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-            <p>&copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}. All rights reserved.</p>
+        <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
+            &copy; {{ date('Y') }} Zenthercraft. All rights reserved.
         </footer>
 
     </div>

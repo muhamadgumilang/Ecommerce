@@ -15,6 +15,7 @@ class CatalogController extends Controller
     {
         // Mengambil data dari tabel products
         $products = Product::query()
+            ->with(['category', 'seller'])
             ->latest()
             ->paginate(12);
 

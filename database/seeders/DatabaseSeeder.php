@@ -19,13 +19,13 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. DUMMY USERS (Admin, Customer, User)
+        // 1. DUMMY USERS (Admin, Seller, Customer)
         $admin = User::create([
             'name' => 'Admin System',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('password123'),
             'phone' => '081234567890',
-            'role' => 'admin',
+            'role' => 'Admin',
         ]);
 
         $seller = User::create([
@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'seller@gmail.com',
             'password' => Hash::make('password123'),
             'phone' => '081298765432',
-            'role' => 'User',
+            'role' => 'Seller',
         ]);
 
         $customer = User::create([

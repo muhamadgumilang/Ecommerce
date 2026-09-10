@@ -12,9 +12,43 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
+                    @if (Auth::user()->isAdmin())
+                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                            {{ __('Dashboard') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
+                            {{ __('Semua Produk') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
+                            {{ __('Semua Pesanan') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
+                            {{ __('Kategori') }}
+                        </x-nav-link>
+                    @elseif (Auth::user()->isSeller())
+                        <x-nav-link :href="route('seller.dashboard')" :active="request()->routeIs('seller.dashboard')">
+                            {{ __('Dashboard Toko') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('seller.products.index')" :active="request()->routeIs('seller.products.*')">
+                            {{ __('Produk Saya') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('seller.orders.index')" :active="request()->routeIs('seller.orders.*')">
+                            {{ __('Pesanan Masuk') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('catalog.index')">
+                            {{ __('Lihat Katalog') }}
+                        </x-nav-link>
+                    @else
+                        <x-nav-link :href="route('home')">
+                            {{ __('Beranda') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('catalog.index')">
+                            {{ __('Katalog') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('orders.index')">
+                            {{ __('Pesanan Saya') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -35,9 +69,13 @@
 
                     <x-slot name="content">
 
-                    @if(Auth::check() && Auth::user()->role === 'Admin')
+                    @if(Auth::check() && Auth::user()->isAdmin())
                         <x-dropdown-link :href="route('admin.dashboard')">
                             {{ __('Admin Dashboard') }}
+                        </x-dropdown-link>
+                    @elseif(Auth::check() && Auth::user()->isSeller())
+                        <x-dropdown-link :href="route('seller.dashboard')">
+                            {{ __('Dashboard Toko') }}
                         </x-dropdown-link>
                     @endif
 
@@ -87,10 +125,26 @@
             </div>
 
             <div class="mt-3 space-y-1">
-                <!-- MENU ADMIN DASHBOARD UNTUK MOBILE DROPDOWN -->
-                @if(Auth::check() && Auth::user()->role === 'admin')
+                <!-- MENU ROLE UNTUK MOBILE DROPDOWN -->
+                @if(Auth::check() && Auth::user()->isAdmin())
                     <x-responsive-nav-link :href="route('admin.dashboard')">
                         {{ __('Admin Dashboard') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.products.index')">
+                        {{ __('Semua Produk') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.orders.index')">
+                        {{ __('Semua Pesanan') }}
+                    </x-responsive-nav-link>
+                @elseif(Auth::check() && Auth::user()->isSeller())
+                    <x-responsive-nav-link :href="route('seller.dashboard')">
+                        {{ __('Dashboard Toko') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('seller.products.index')">
+                        {{ __('Produk Saya') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('seller.orders.index')">
+                        {{ __('Pesanan Masuk') }}
                     </x-responsive-nav-link>
                 @endif
 

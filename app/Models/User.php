@@ -25,6 +25,27 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    // Role helper methods
+    public function isAdmin(): bool
+    {
+        return strtolower($this->role ?? '') === 'admin';
+    }
+
+    public function isSeller(): bool
+    {
+        return strtolower($this->role ?? '') === 'seller';
+    }
+
+    public function isCustomer(): bool
+    {
+        return strtolower($this->role ?? '') === 'customer';
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return strtolower($this->role ?? '') === strtolower($role);
+    }
+
     // Relasi User sebagai Penjual
     public function products()
     {

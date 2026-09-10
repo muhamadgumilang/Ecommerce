@@ -11,6 +11,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\Admin\DashboardController; // Pastikan controller ini di-import
+use App\Http\Controllers\Seller\DashboardController as SellerDashboardController;
+use App\Http\Controllers\Seller\ProductController as SellerProductController;
+use App\Http\Controllers\Seller\OrderController as SellerOrderController;
 use Illuminate\Support\Facades\Route;
 
 // Halaman Utama (Landing Page) - Mengambil data produk via HomeController
@@ -19,9 +22,16 @@ Route::get('/products/{product}', [PublicProductController::class, 'show'])->nam
 
 Route::apiResource('catalog', CatalogController::class)->only(['index', 'show']);
 
-// Route Dashboard Redirect ke Admin
+// Route Dashboard Cerdas Redirect Sesuai Role
 Route::get('/dashboard', function () {
-    return redirect()->route('admin.dashboard');
+    $user = auth()->user();
+    if ($user->isAdmin()) {
+        return redirect()->route('admin.dashboard');
+    }
+    if ($user->isSeller()) {
+        return redirect()->route('seller.dashboard');
+    }
+    return redirect()->route('home');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Route Manajemen Admin (Dashboard, Kategori, Produk, Pesanan Admin)
@@ -35,6 +45,15 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::resource('orders', AdminOrderController::class)->except(['create', 'store']);
 });
 
+// Route Manajemen Seller (Dashboard, Produk Toko, Pesanan Masuk Toko)
+Route::middleware(['auth', 'verified', 'seller'])->prefix('seller')->name('seller.')->group(function () {
+    Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
+    Route::resource('products', SellerProductController::class);
+    Route::get('/orders', [SellerOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [SellerOrderController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{order}/ship', [SellerOrderController::class, 'ship'])->name('orders.ship');
+});
+
 // Route Manajemen Profil User, Keranjang, Checkout, & Pesanan User
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -45,6 +64,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
     Route::post('/cart/buy-now', [CartController::class, 'buyNow'])->name('cart.buy-now');
     Route::post('/cart/checkout-selected', [CartController::class, 'checkoutSelected'])->name('cart.checkout-selected');
+    Route::post('/cart/checkout-all', [CartController::class, 'checkoutAll'])->name('cart.checkout-all');
+    Route::patch('/cart/items/{cart_item_id}', [CartController::class, 'updateQuantity'])->name('cart.update');
     Route::delete('/cart/items/{cart_item_id}', [CartController::class, 'removeItem'])->name('cart.remove');
 
     Route::get('/checkout', [UserOrderController::class, 'showCheckout'])->name('checkout.index');

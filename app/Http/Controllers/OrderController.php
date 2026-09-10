@@ -42,6 +42,8 @@ class OrderController extends Controller
     {
         abort_unless(Auth::id() === $order->customer_id, 403, 'Anda tidak berhak melihat order ini.');
 
+        $order->load(['orderDetails.product', 'checkout', 'payment']);
+
         return view('orders.show', compact('order'));
     }
 

@@ -57,6 +57,28 @@
                         <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                     </div>
 
+                    <!-- Role Selection -->
+                    <div>
+                        <x-input-label :value="__('Daftar Sebagai')" class="text-blue-800 text-sm font-medium mb-2" />
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center gap-3 p-3 rounded-xl border border-blue-100 bg-blue-50/40 hover:bg-blue-50/80 cursor-pointer transition">
+                                <input type="radio" name="role" value="Customer" class="text-blue-600 focus:ring-blue-400" {{ old('role', 'Customer') === 'Customer' ? 'checked' : '' }}>
+                                <div>
+                                    <span class="block text-sm font-semibold text-slate-800">Pembeli</span>
+                                    <span class="block text-xs text-slate-500">Beli produk</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 rounded-xl border border-blue-100 bg-blue-50/40 hover:bg-blue-50/80 cursor-pointer transition">
+                                <input type="radio" name="role" value="Seller" class="text-blue-600 focus:ring-blue-400" {{ old('role') === 'Seller' ? 'checked' : '' }}>
+                                <div>
+                                    <span class="block text-sm font-semibold text-slate-800">Penjual</span>
+                                    <span class="block text-xs text-slate-500">Buka toko</span>
+                                </div>
+                            </label>
+                        </div>
+                        <x-input-error :messages="$errors->get('role')" class="mt-2" />
+                    </div>
+
                     <!-- Submit -->
                     <div class="pt-2">
                         <x-primary-button class="w-full justify-center py-3 rounded-full text-base font-semibold

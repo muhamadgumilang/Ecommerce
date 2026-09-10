@@ -92,6 +92,38 @@ class CartController extends Controller
         return redirect()->route('checkout.index');
     }
 
+    public function updateQuantity(Request $request, $cart_item_id)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        $cartItem = CartItem::with(['cart', 'product'])->findOrFail($cart_item_id);
+
+        abort_unless(Auth::id() === $cartItem->cart->customer_id, 403);
+
+        if ($request->quantity > $cartItem->product->stock) {
+            return redirect()->back()->with('error', 'Jumlah pesanan melebihi stok yang tersedia (' . $cartItem->product->stock . ' unit).');
+        }
+
+        $cartItem->update(['quantity' => $request->quantity]);
+
+        return redirect()->route('cart.index')->with('success', 'Jumlah barang berhasil diperbarui!');
+    }
+
+    public function checkoutAll(Request $request)
+    {
+        $cart = Cart::where('customer_id', Auth::user()->user_id)->first();
+
+        if (!$cart || $cart->cartItems()->count() === 0) {
+            return redirect()->route('cart.index')->with('error', 'Keranjang belanja Anda kosong.');
+        }
+
+        $request->session()->forget('checkout_cart_item_id');
+
+        return redirect()->route('checkout.index');
+    }
+
     public function removeItem($cart_item_id)
     {
         $cartItem = CartItem::findOrFail($cart_item_id);

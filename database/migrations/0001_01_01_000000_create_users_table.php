@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone', 15)->nullable(); // Tambahan kolom no hp
-            $table->enum('role', ['Admin', 'Customer', 'User'])->default('User'); // Tambahan kolom role
+            $table->enum('role', ['Admin', 'Customer', 'Seller'])->default('Customer'); // Kolom role 3 level
             $table->rememberToken();
             $table->timestamps();
         });
