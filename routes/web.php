@@ -9,11 +9,13 @@ use App\Http\Controllers\OrderController as UserOrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\Admin\DashboardController; // Pastikan controller ini di-import
 use Illuminate\Support\Facades\Route;
 
 // Halaman Utama (Landing Page) - Mengambil data produk via HomeController
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/products/{product}', [PublicProductController::class, 'show'])->name('products.show');
 
 Route::apiResource('catalog', CatalogController::class)->only(['index', 'show']);
 
@@ -41,6 +43,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::post('/cart/buy-now', [CartController::class, 'buyNow'])->name('cart.buy-now');
     Route::delete('/cart/items/{cart_item_id}', [CartController::class, 'removeItem'])->name('cart.remove');
 
     Route::get('/checkout', [UserOrderController::class, 'showCheckout'])->name('checkout.index');

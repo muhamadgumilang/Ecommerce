@@ -10,13 +10,26 @@
 <body class="bg-slate-50 p-6">
     <main class="max-w-xl mx-auto bg-white rounded-lg p-6 shadow">
         <h1 class="text-2xl font-bold mb-4">Checkout</h1>
-        <p class="mb-4">Subtotal: Rp {{ number_format($subtotal, 0, ',', '.') }}</p>
-        <form method="POST" action="{{ route('checkout.process') }}" class="space-y-4">@csrf<input
-                name="shipping_address" required placeholder="Alamat pengiriman"
-                class="w-full rounded border-slate-300"><input name="courier" required placeholder="Kurir"
-                class="w-full rounded border-slate-300"><input name="shipping_fee" type="number" min="0"
-                required placeholder="Biaya kirim" class="w-full rounded border-slate-300">
-            <textarea name="notes" placeholder="Catatan" class="w-full rounded border-slate-300"></textarea><button class="rounded bg-blue-600 px-4 py-2 text-white">Proses checkout</button>
+        <div class="mb-6 space-y-2 text-sm">
+            <div class="flex justify-between">
+                <span>Subtotal</span>
+                <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+            </div>
+            <div class="flex justify-between text-slate-500">
+                <span>Pengiriman standar</span>
+                <span>Gratis</span>
+            </div>
+            <div class="flex justify-between border-t border-slate-200 pt-2 text-base font-bold">
+                <span>Total</span>
+                <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+            </div>
+        </div>
+        <form method="POST" action="{{ route('checkout.process') }}" class="space-y-4">
+            @csrf
+            <input name="shipping_address" required placeholder="Alamat pengiriman"
+                class="w-full rounded border-slate-300">
+            <textarea name="notes" placeholder="Catatan (opsional)" class="w-full rounded border-slate-300"></textarea>
+            <button class="rounded bg-blue-600 px-4 py-2 text-white">Proses checkout</button>
         </form>
     </main>
 </body>

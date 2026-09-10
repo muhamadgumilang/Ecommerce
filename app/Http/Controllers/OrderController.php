@@ -39,10 +39,11 @@ class OrderController extends Controller
     {
         $fields = $request->validate([
             'shipping_address' => 'required|string',
-            'courier' => 'required|string|max:50',
-            'shipping_fee' => 'required|numeric',
             'notes' => 'nullable|string',
         ]);
+
+        $shippingMethod = 'Pengiriman standar';
+        $shippingFee = 0;
 
         $user = Auth::user();
         $cart = Cart::where('customer_id', $user->user_id)->with('cartItems.product')->first();
@@ -55,7 +56,7 @@ class OrderController extends Controller
         $subtotal = $cart->cartItems->sum(function ($item) {
             return $item->product->price * $item->quantity;
         });
-        $totalAmount = $subtotal + $fields['shipping_fee'];
+        $totalAmount = $subtotal + $shippingFee;
 
         // 2. Simpan Data Order
         $order = Order::create([
@@ -68,8 +69,8 @@ class OrderController extends Controller
         Checkout::create([
             'order_id' => $order->order_id,
             'shipping_address' => $fields['shipping_address'],
-            'courier' => $fields['courier'],
-            'shipping_fee' => $fields['shipping_fee'],
+            'courier' => $shippingMethod,
+            'shipping_fee' => $shippingFee,
             'notes' => $fields['notes'] ?? null,
         ]);
 

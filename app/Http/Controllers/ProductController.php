@@ -23,9 +23,10 @@ class ProductController extends Controller
         return view('products.index', compact('products', 'categories'));
     }
 
-    public function show($id)
+    public function show(Product $product)
     {
-        $product = Product::with(['category', 'seller'])->findOrFail($id);
+        $product->load(['category', 'seller']);
+
         return view('products.show', compact('product'));
     }
 }

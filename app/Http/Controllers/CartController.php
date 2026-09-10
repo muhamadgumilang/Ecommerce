@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -42,6 +43,34 @@ class CartController extends Controller
         }
 
         return redirect()->route('cart.index')->with('success', 'Produk berhasil ditambahkan ke keranjang!');
+    }
+
+    public function buyNow(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,product_id',
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        $product = Product::findOrFail($request->product_id);
+
+        if ($request->quantity > $product->stock) {
+            return back()->withErrors([
+                'quantity' => 'Jumlah pesanan melebihi stok yang tersedia.',
+            ])->withInput();
+        }
+
+        $user = Auth::user();
+        $cart = Cart::firstOrCreate(['customer_id' => $user->user_id]);
+
+        CartItem::where('cart_id', $cart->cart_id)->delete();
+        CartItem::create([
+            'cart_id' => $cart->cart_id,
+            'product_id' => $product->product_id,
+            'quantity' => $request->quantity,
+        ]);
+
+        return redirect()->route('checkout.index');
     }
 
     public function removeItem($cart_item_id)
