@@ -63,12 +63,31 @@ class CartController extends Controller
         $user = Auth::user();
         $cart = Cart::firstOrCreate(['customer_id' => $user->user_id]);
 
+        $request->session()->forget('checkout_cart_item_id');
         CartItem::where('cart_id', $cart->cart_id)->delete();
         CartItem::create([
             'cart_id' => $cart->cart_id,
             'product_id' => $product->product_id,
             'quantity' => $request->quantity,
         ]);
+
+        return redirect()->route('checkout.index');
+    }
+
+    public function checkoutSelected(Request $request)
+    {
+        $request->validate([
+            'cart_item_id' => 'required|integer',
+        ]);
+
+        $cart = Cart::where('customer_id', Auth::user()->user_id)->firstOrFail();
+        $cartItem = $cart->cartItems()->where('cart_item_id', $request->cart_item_id)->first();
+
+        if (!$cartItem) {
+            return redirect()->route('cart.index')->with('error', 'Produk yang dipilih tidak ditemukan.');
+        }
+
+        $request->session()->put('checkout_cart_item_id', $cartItem->cart_item_id);
 
         return redirect()->route('checkout.index');
     }

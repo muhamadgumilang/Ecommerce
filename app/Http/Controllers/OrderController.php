@@ -21,6 +21,16 @@ class OrderController extends Controller
             return redirect()->route('cart.index')->with('error', 'Keranjang Anda kosong.');
         }
 
+        $selectedCartItemId = session('checkout_cart_item_id');
+        if ($selectedCartItemId) {
+            $cart->setRelation('cartItems', $cart->cartItems->where('cart_item_id', (int) $selectedCartItemId)->values());
+        }
+
+        if ($cart->cartItems->isEmpty()) {
+            session()->forget('checkout_cart_item_id');
+            return redirect()->route('cart.index')->with('error', 'Produk yang dipilih tidak tersedia.');
+        }
+
         $subtotal = $cart->cartItems->sum(function ($item) {
             return $item->product->price * $item->quantity;
         });
@@ -50,6 +60,16 @@ class OrderController extends Controller
 
         if (!$cart || $cart->cartItems->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Keranjang Anda kosong.');
+        }
+
+        $selectedCartItemId = session('checkout_cart_item_id');
+        if ($selectedCartItemId) {
+            $cart->setRelation('cartItems', $cart->cartItems->where('cart_item_id', (int) $selectedCartItemId)->values());
+        }
+
+        if ($cart->cartItems->isEmpty()) {
+            session()->forget('checkout_cart_item_id');
+            return redirect()->route('cart.index')->with('error', 'Produk yang dipilih tidak tersedia.');
         }
 
         // 1. Hitung Total Pesanan
@@ -85,7 +105,8 @@ class OrderController extends Controller
         }
 
         // 5. Bersihkan Keranjang
-        CartItem::where('cart_id', $cart->cart_id)->delete();
+        CartItem::whereIn('cart_item_id', $cart->cartItems->pluck('cart_item_id'))->delete();
+        session()->forget('checkout_cart_item_id');
 
         return redirect()->route('orders.index')->with('success', 'Checkout berhasil! Silakan lakukan pembayaran.');
     }
