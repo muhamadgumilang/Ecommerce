@@ -10,13 +10,13 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::with('user')->latest()->paginate(10);
+        $orders = Order::with('customer')->latest('order_date')->paginate(10);
         return view('admin.orders.index', compact('orders'));
     }
 
     public function show(Order $order)
     {
-        $order->load('items.product', 'user', 'payment');
+        $order->load('orderDetails.product', 'customer', 'checkout', 'payment');
         return view('admin.orders.show', compact('order'));
     }
 
@@ -28,13 +28,11 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         $request->validate([
-            'status' => 'required|in:pending,processing,completed,cancelled',
-            'payment_status' => 'required|in:pending,paid,failed',
+            'order_status' => 'required|in:Pending Payment,Processing,Shipped,Completed,Cancelled',
         ]);
 
         $order->update([
-            'status' => $request->status,
-            'payment_status' => $request->payment_status,
+            'order_status' => $request->order_status,
         ]);
 
         return redirect()->route('admin.orders.index')->with('success', 'Status pesanan berhasil diperbarui.');

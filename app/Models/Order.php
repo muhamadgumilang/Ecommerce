@@ -23,6 +23,11 @@ class Order extends Model
         'order_status',
     ];
 
+    protected $casts = [
+        'order_date' => 'datetime',
+        'total_amount' => 'decimal:2',
+    ];
+
     public function customer()
     {
         return $this->belongsTo(User::class, 'customer_id', 'user_id');
