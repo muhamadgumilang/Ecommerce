@@ -10,7 +10,7 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::with('customer')->latest('order_date')->paginate(10);
+        $orders = Order::with(['customer', 'payment'])->latest('order_date')->paginate(10);
         return view('admin.orders.index', compact('orders'));
     }
 
@@ -35,7 +35,8 @@ class OrderController extends Controller
             'order_status' => $request->order_status,
         ]);
 
-        return redirect()->route('admin.orders.index')->with('success', 'Status pesanan berhasil diperbarui.');
+        return redirect()->route('admin.orders.show', $order)
+            ->with('success', 'Status pesanan berhasil diperbarui.');
     }
 
     public function destroy(Order $order)

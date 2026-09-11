@@ -8,7 +8,9 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Checkout;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
@@ -32,7 +34,7 @@ class OrderController extends Controller
         }
 
         $subtotal = $cart->cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
+            return (int) round((float) $item->product->price) * (int) $item->quantity;
         });
 
         return view('checkout.index', compact('cart', 'subtotal'));
@@ -74,40 +76,58 @@ class OrderController extends Controller
             return redirect()->route('cart.index')->with('error', 'Produk yang dipilih tidak tersedia.');
         }
 
-        // 1. Hitung Total Pesanan
-        $subtotal = $cart->cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
-        });
-        $totalAmount = $subtotal + $shippingFee;
+        $cartItems = $cart->cartItems;
 
-        // 2. Simpan Data Order
-        $order = Order::create([
-            'customer_id' => $user->user_id,
-            'total_amount' => $totalAmount,
-            'order_status' => 'Pending Payment',
-        ]);
+        $order = DB::transaction(function () use ($cartItems, $fields, $shippingMethod, $shippingFee, $user) {
+            $lineItems = [];
 
-        // 3. Simpan Detail Checkout
-        Checkout::create([
-            'order_id' => $order->order_id,
-            'shipping_address' => $fields['shipping_address'],
-            'courier' => $shippingMethod,
-            'shipping_fee' => $shippingFee,
-            'notes' => $fields['notes'] ?? null,
-        ]);
+            foreach ($cartItems as $item) {
+                $product = $item->product()->lockForUpdate()->first();
 
-        // 4. Pindahkan Barang ke Order Details
-        foreach ($cart->cartItems as $item) {
-            OrderDetail::create([
-                'order_id' => $order->order_id,
-                'product_id' => $item->product_id,
-                'quantity' => $item->quantity,
-                'subtotal' => $item->product->price * $item->quantity,
+                if (!$product || $item->quantity > $product->stock) {
+                    throw ValidationException::withMessages([
+                        'stock' => "Stok produk " . ($product?->product_name ?? 'yang dipilih') . ' tidak mencukupi.',
+                    ]);
+                }
+
+                $unitPrice = (int) round((float) $product->price);
+                $lineItems[] = [
+                    'item' => $item,
+                    'product' => $product,
+                    'subtotal' => $unitPrice * (int) $item->quantity,
+                ];
+                $product->decrement('stock', $item->quantity);
+            }
+
+            $subtotal = collect($lineItems)->sum('subtotal');
+            $order = Order::create([
+                'customer_id' => $user->user_id,
+                'total_amount' => $subtotal + $shippingFee,
+                'order_status' => 'Pending Payment',
             ]);
-        }
 
-        // 5. Bersihkan Keranjang
-        CartItem::whereIn('cart_item_id', $cart->cartItems->pluck('cart_item_id'))->delete();
+            Checkout::create([
+                'order_id' => $order->order_id,
+                'shipping_address' => $fields['shipping_address'],
+                'courier' => $shippingMethod,
+                'shipping_fee' => $shippingFee,
+                'notes' => $fields['notes'] ?? null,
+            ]);
+
+            foreach ($lineItems as $lineItem) {
+                OrderDetail::create([
+                    'order_id' => $order->order_id,
+                    'product_id' => $lineItem['product']->product_id,
+                    'quantity' => $lineItem['item']->quantity,
+                    'subtotal' => $lineItem['subtotal'],
+                ]);
+            }
+
+            CartItem::whereIn('cart_item_id', $cartItems->pluck('cart_item_id'))->delete();
+
+            return $order;
+        });
+
         session()->forget('checkout_cart_item_id');
 
         return redirect()->route('orders.index')->with('success', 'Checkout berhasil! Silakan lakukan pembayaran.');

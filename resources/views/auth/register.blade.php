@@ -22,8 +22,8 @@
                         <x-input-label for="name" :value="__('Nama Lengkap')" class="text-blue-800 text-sm font-medium" />
                         <x-text-input id="name"
                             class="block mt-1 w-full rounded-lg border-blue-100 bg-blue-50/50 focus:bg-white focus:border-blue-400 focus:ring-blue-400 text-blue-900 placeholder-blue-300"
-                            type="text" name="name" :value="old('name')" required autofocus
-                            autocomplete="name" placeholder="Nama kamu" />
+                            type="text" name="name" :value="old('name')" required autofocus autocomplete="name"
+                            placeholder="Nama kamu" />
                         <x-input-error :messages="$errors->get('name')" class="mt-2" />
                     </div>
 
@@ -32,8 +32,8 @@
                         <x-input-label for="email" :value="__('Email')" class="text-blue-800 text-sm font-medium" />
                         <x-text-input id="email"
                             class="block mt-1 w-full rounded-lg border-blue-100 bg-blue-50/50 focus:bg-white focus:border-blue-400 focus:ring-blue-400 text-blue-900 placeholder-blue-300"
-                            type="email" name="email" :value="old('email')" required
-                            autocomplete="username" placeholder="abc@xyz.com" />
+                            type="email" name="email" :value="old('email')" required autocomplete="username"
+                            placeholder="abc@xyz.com" />
                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
                     </div>
 
@@ -49,7 +49,8 @@
 
                     <!-- Confirm Password -->
                     <div>
-                        <x-input-label for="password_confirmation" :value="__('Konfirmasi Password')" class="text-blue-800 text-sm font-medium" />
+                        <x-input-label for="password_confirmation" :value="__('Konfirmasi Password')"
+                            class="text-blue-800 text-sm font-medium" />
                         <x-text-input id="password_confirmation"
                             class="block mt-1 w-full rounded-lg border-blue-100 bg-blue-50/50 focus:bg-white focus:border-blue-400 focus:ring-blue-400 text-blue-900"
                             type="password" name="password_confirmation" required autocomplete="new-password"
@@ -61,17 +62,23 @@
                     <div>
                         <x-input-label :value="__('Daftar Sebagai')" class="text-blue-800 text-sm font-medium mb-2" />
                         <div class="grid grid-cols-2 gap-3">
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-blue-100 bg-blue-50/40 hover:bg-blue-50/80 cursor-pointer transition">
-                                <input type="radio" name="role" value="Customer" class="text-blue-600 focus:ring-blue-400" {{ old('role', 'Customer') === 'Customer' ? 'checked' : '' }}>
+                            <label
+                                class="flex items-center gap-3 p-3 rounded-xl border border-blue-100 bg-blue-50/40 hover:bg-blue-50/80 cursor-pointer transition">
+                                <input type="radio" name="role" value="Customer"
+                                    class="text-blue-600 focus:ring-blue-400"
+                                    {{ old('role', 'Customer') === 'Customer' ? 'checked' : '' }}>
                                 <div>
                                     <span class="block text-sm font-semibold text-slate-800">Pembeli</span>
                                     <span class="block text-xs text-slate-500">Beli produk</span>
                                 </div>
                             </label>
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-blue-100 bg-blue-50/40 hover:bg-blue-50/80 cursor-pointer transition">
-                                <input type="radio" name="role" value="Seller" class="text-blue-600 focus:ring-blue-400" {{ old('role') === 'Seller' ? 'checked' : '' }}>
+                            <label
+                                class="flex items-center gap-3 p-3 rounded-xl border border-blue-100 bg-blue-50/40 hover:bg-blue-50/80 cursor-pointer transition">
+                                <input type="radio" name="role" value="Seller"
+                                    class="text-blue-600 focus:ring-blue-400"
+                                    {{ old('role') === 'Seller' ? 'checked' : '' }}>
                                 <div>
-                                    <span class="block text-sm font-semibold text-slate-800">Penjual</span>
+                                    <span class="block text-sm font-semibold text-slate-800">Petugas</span>
                                     <span class="block text-xs text-slate-500">Buka toko</span>
                                 </div>
                             </label>
@@ -81,7 +88,8 @@
 
                     <!-- Submit -->
                     <div class="pt-2">
-                        <x-primary-button class="w-full justify-center py-3 rounded-full text-base font-semibold
+                        <x-primary-button
+                            class="w-full justify-center py-3 rounded-full text-base font-semibold
                             bg-gradient-to-r from-blue-500 to-sky-400 hover:from-blue-600 hover:to-sky-500
                             border-none shadow-lg shadow-blue-200">
                             {{ __('Daftar') }}
@@ -91,12 +99,14 @@
 
                 <p class="text-center text-sm text-blue-500 mt-6">
                     {{ __('Sudah punya akun?') }}
-                    <a href="{{ route('login') }}" class="font-semibold text-blue-700 hover:underline">{{ __('Masuk di sini') }}</a>
+                    <a href="{{ route('login') }}"
+                        class="font-semibold text-blue-700 hover:underline">{{ __('Masuk di sini') }}</a>
                 </p>
             </div>
 
             <!-- KANAN: PANEL DEKORATIF -->
-            <div class="hidden md:block relative bg-gradient-to-br from-blue-400 via-sky-400 to-blue-200 overflow-hidden">
+            <div
+                class="hidden md:block relative bg-gradient-to-br from-blue-400 via-sky-400 to-blue-200 overflow-hidden">
                 <!-- Decorative circles -->
                 <div class="absolute -top-10 -left-10 w-40 h-40 rounded-full border border-white/30"></div>
                 <div class="absolute bottom-10 left-10 w-24 h-24 rounded-full border border-white/20"></div>
@@ -109,11 +119,15 @@
                         Ribuan produk pilihan, promo eksklusif, dan pengiriman cepat menanti kamu.
                     </p>
                     <div class="flex items-center gap-3">
-                        <button class="px-5 py-2 rounded-full bg-white/90 text-blue-600 text-sm font-semibold hover:bg-white transition">
+                        <button
+                            class="px-5 py-2 rounded-full bg-white/90 text-blue-600 text-sm font-semibold hover:bg-white transition">
                             Mulai Belanja
                         </button>
-                        <button class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
-                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <button
+                            class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
+                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
                         </button>
                     </div>
                 </div>

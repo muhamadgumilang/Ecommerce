@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $seller = User::create([
-            'name' => 'Penjual Toko Kita',
+            'name' => 'Petugas Toko Kita',
             'email' => 'seller@gmail.com',
             'password' => Hash::make('password123'),
             'phone' => '081298765432',
@@ -47,12 +47,12 @@ class DatabaseSeeder extends Seeder
         // 2. DUMMY CATEGORIES
         $catElectronics = Category::create([
             'name' => 'Elektronik',
-            'slug' => Str::slug('Elektronik')
+            'slug' => Str::slug('Elektronik'),
         ]);
 
         $catFashion = Category::create([
             'name' => 'Pakaian',
-            'slug' => Str::slug('Pakaian')
+            'slug' => Str::slug('Pakaian'),
         ]);
 
         // 3. DUMMY PRODUCTS (Menggunakan getKey() agar aman terhadap nama primary key)

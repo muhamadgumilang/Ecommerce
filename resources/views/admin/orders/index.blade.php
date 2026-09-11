@@ -6,25 +6,57 @@
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             @if (session('success'))
-                <div class="mb-4 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-sm">{{ session('success') }}</div>
+                <div class="mb-4 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-sm">
+                    {{ session('success') }}</div>
             @endif
             <div class="bg-white shadow-sm sm:rounded-2xl border border-slate-100 p-6 overflow-x-auto">
                 <table class="w-full text-left min-w-[700px]">
                     <thead class="border-b border-slate-100 text-slate-400 text-xs uppercase">
-                        <tr><th class="py-3 px-4">Pesanan</th><th class="py-3 px-4">Pelanggan</th><th class="py-3 px-4">Tanggal</th><th class="py-3 px-4">Total</th><th class="py-3 px-4">Status</th><th class="py-3 px-4">Aksi</th></tr>
+                        <tr>
+                            <th class="py-3 px-4">Pesanan</th>
+                            <th class="py-3 px-4">Pelanggan</th>
+                            <th class="py-3 px-4">Tanggal</th>
+                            <th class="py-3 px-4">Total</th>
+                            <th class="py-3 px-4">Pembayaran</th>
+                            <th class="py-3 px-4">Status</th>
+                            <th class="py-3 px-4">Aksi</th>
+                        </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-sm">
                         @forelse ($orders as $order)
+                            @php
+                                $statusLabels = [
+                                    'Pending Payment' => 'Menunggu Pembayaran',
+                                    'Processing' => 'Sudah Dibayar / Diproses',
+                                    'Shipped' => 'Sedang Dikirim',
+                                    'Completed' => 'Sudah Tiba',
+                                    'Cancelled' => 'Dibatalkan',
+                                ];
+                            @endphp
                             <tr>
                                 <td class="py-3 px-4 font-medium">#{{ $order->order_id }}</td>
                                 <td class="py-3 px-4">{{ $order->customer?->name ?? '-' }}</td>
                                 <td class="py-3 px-4">{{ $order->order_date?->format('d/m/Y H:i') }}</td>
                                 <td class="py-3 px-4">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
-                                <td class="py-3 px-4">{{ $order->order_status }}</td>
-                                <td class="py-3 px-4 space-x-2"><a class="text-blue-600 hover:underline" href="{{ route('admin.orders.show', $order) }}">Detail</a><a class="text-amber-600 hover:underline" href="{{ route('admin.orders.edit', $order) }}">Edit</a></td>
+                                <td class="py-3 px-4">
+                                    @if ($order->payment)
+                                        <a href="{{ route('admin.payments.index') }}"
+                                            class="text-blue-600 hover:underline">{{ $order->payment->payment_status }}</a>
+                                    @else
+                                        <span class="text-slate-400">Belum ada</span>
+                                    @endif
+                                </td>
+                                <td class="py-3 px-4">{{ $statusLabels[$order->order_status] ?? $order->order_status }}
+                                </td>
+                                <td class="py-3 px-4 space-x-2"><a class="text-blue-600 hover:underline"
+                                        href="{{ route('admin.orders.show', $order) }}">Detail</a><a
+                                        class="text-amber-600 hover:underline"
+                                        href="{{ route('admin.orders.edit', $order) }}">Edit</a></td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="py-6 text-center text-slate-400">Belum ada pesanan.</td></tr>
+                            <tr>
+                                <td colspan="7" class="py-6 text-center text-slate-400">Belum ada pesanan.</td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>

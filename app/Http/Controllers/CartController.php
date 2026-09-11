@@ -32,8 +32,17 @@ class CartController extends Controller
             ->where('product_id', $request->product_id)
             ->first();
 
+        $requestedQuantity = ($cartItem?->quantity ?? 0) + $request->integer('quantity');
+        $product = Product::findOrFail($request->product_id);
+
+        if ($requestedQuantity > $product->stock) {
+            return back()->withErrors([
+                'quantity' => "Stok {$product->product_name} hanya tersedia {$product->stock} unit.",
+            ])->withInput();
+        }
+
         if ($cartItem) {
-            $cartItem->increment('quantity', $request->quantity);
+            $cartItem->update(['quantity' => $requestedQuantity]);
         } else {
             CartItem::create([
                 'cart_id' => $cart->cart_id,

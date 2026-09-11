@@ -12,6 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->validateCsrfTokens(except: [
+            'midtrans/notification',
+        ]);
+
         // Daftarkan alias middleware role di sini
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
