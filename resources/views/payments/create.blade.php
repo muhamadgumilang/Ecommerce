@@ -49,10 +49,15 @@
                 </a>
 
                 @auth
-                    @if (Auth::user()->role === 'Admin')
-                        <a href="{{ url('/dashboard') }}"
+                    @if (Auth::user()->isAdmin())
+                        <a href="{{ route('admin.dashboard') }}"
                             class="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition shadow-sm shadow-blue-600/20">
                             Admin
+                        </a>
+                    @elseif (Auth::user()->isSeller())
+                        <a href="{{ route('seller.dashboard') }}"
+                            class="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700 transition shadow-sm shadow-emerald-600/20">
+                            <span>🏪</span> Toko Saya
                         </a>
                     @else
                         <span class="text-xs text-slate-500 hidden lg:inline px-2">Halo, <strong

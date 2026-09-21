@@ -10,7 +10,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with('category');
+        $query = Product::with(['category', 'seller']);
 
         // Filter berdasarkan kategori jika dipilih di Blade
         if ($request->has('category_id') && $request->category_id != '') {

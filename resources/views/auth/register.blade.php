@@ -78,8 +78,8 @@
                                     class="text-blue-600 focus:ring-blue-400"
                                     {{ old('role') === 'Seller' ? 'checked' : '' }}>
                                 <div>
-                                    <span class="block text-sm font-semibold text-slate-800">Petugas</span>
-                                    <span class="block text-xs text-slate-500">Buka toko</span>
+                                    <span class="block text-sm font-semibold text-slate-800">Penjual (Seller)</span>
+                                    <span class="block text-xs text-slate-500">Buka toko & jual produk</span>
                                 </div>
                             </label>
                         </div>

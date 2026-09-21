@@ -21,6 +21,7 @@
                                 <th class="py-3 px-4">No</th>
                                 <th class="py-3 px-4">Foto</th>
                                 <th class="py-3 px-4">Produk</th>
+                                <th class="py-3 px-4">Penjual</th>
                                 <th class="py-3 px-4">Kategori</th>
                                 <th class="py-3 px-4">Harga</th>
                                 <th class="py-3 px-4">Stok</th>
@@ -34,7 +35,6 @@
                                         {{ $loop->iteration + ($products->currentPage() - 1) * $products->perPage() }}
                                     </td>
                                     <!-- Kolom Foto Thumbnail -->
-                                    <!-- Kolom Foto Thumbnail -->
                                     <td class="py-3 px-4">
                                         <div style="width: 56px; height: 56px; min-width: 56px; min-height: 56px;" class="rounded-xl bg-slate-100 overflow-hidden border border-slate-200 flex items-center justify-center">
                                             @if(!empty($product->image))
@@ -45,6 +45,11 @@
                                         </div>
                                     </td>
                                     <td class="py-3 px-4 font-medium text-slate-800">{{ $product->product_name }}</td>
+                                    <td class="py-3 px-4 text-slate-600">
+                                        <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700">
+                                            🏪 {{ $product->seller?->name ?? 'System' }}
+                                        </span>
+                                    </td>
                                     <td class="py-3 px-4 text-slate-500">{{ $product->category?->name ?? '-' }}</td>
                                     <td class="py-3 px-4 text-slate-600">Rp
                                         {{ number_format($product->price, 0, ',', '.') }}</td>

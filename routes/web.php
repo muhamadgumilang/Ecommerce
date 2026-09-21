@@ -13,6 +13,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\Admin\DashboardController; // Pastikan controller ini di-import
+use App\Http\Controllers\Seller\DashboardController as SellerDashboardController;
 use App\Http\Controllers\Seller\ProductController as SellerProductController;
 use App\Http\Controllers\Seller\OrderController as SellerOrderController;
 use Illuminate\Support\Facades\Route;
@@ -23,10 +24,17 @@ Route::get('/products/{product}', [PublicProductController::class, 'show'])->nam
 
 Route::apiResource('catalog', CatalogController::class)->only(['index', 'show']);
 
-// Dashboard hanya tersedia untuk admin.
-Route::get('/dashboard', fn () => redirect()->route('admin.dashboard'))
-    ->middleware(['auth', 'verified', 'admin'])
-    ->name('dashboard');
+// Route Dashboard Cerdas Redirect Sesuai Role
+Route::get('/dashboard', function () {
+    $user = auth()->user();
+    if ($user->isAdmin()) {
+        return redirect()->route('admin.dashboard');
+    }
+    if ($user->isSeller()) {
+        return redirect()->route('seller.dashboard');
+    }
+    return redirect()->route('home');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 // Route Manajemen Admin (Dashboard, Kategori, Produk, Pesanan Admin)
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -42,8 +50,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
 });
 
-// Route Manajemen Seller (Produk Toko, Pesanan Masuk Toko)
+// Route Manajemen Seller (Dashboard Toko, Produk Toko, Pesanan Masuk Toko)
 Route::middleware(['auth', 'verified', 'seller'])->prefix('seller')->name('seller.')->group(function () {
+    Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
     Route::resource('products', SellerProductController::class);
     Route::get('/orders', [SellerOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [SellerOrderController::class, 'show'])->name('orders.show');

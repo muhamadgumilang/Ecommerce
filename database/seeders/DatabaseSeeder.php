@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $seller = User::create([
-            'name' => 'Petugas Toko Kita',
+            'name' => 'Penjual Toko Kita',
             'email' => 'seller@gmail.com',
             'password' => Hash::make('password123'),
             'phone' => '081298765432',

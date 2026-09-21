@@ -10,7 +10,7 @@ class HomeController extends Controller
     public function index()
     {
         // Mengambil produk terbaru untuk ditampilkan di halaman home
-        $products = Product::latest()->take(8)->get();
+        $products = Product::with(['category', 'seller'])->latest()->take(8)->get();
 
         return view('home', compact('products'));
     }
