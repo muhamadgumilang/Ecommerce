@@ -29,6 +29,10 @@ class AuthController extends Controller
                 return redirect()->route('admin.dashboard');
             }
 
+            if (Auth::user()->isSeller()) {
+                return redirect()->route('seller.dashboard');
+            }
+
             return redirect()->route('home')->with('success', 'Selamat datang kembali!');
         }
 

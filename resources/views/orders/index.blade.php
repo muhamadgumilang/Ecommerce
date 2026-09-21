@@ -40,11 +40,7 @@
                     class="hidden sm:inline-flex items-center px-3 py-2 rounded-lg font-semibold text-blue-600 bg-blue-50">
                     Pesanan Saya
                 </a>
-                <a href="{{ route('cart.index') }}"
-                    class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-slate-100 text-lg leading-none text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition"
-                    title="Keranjang" aria-label="Keranjang">
-                    &#128722;
-                </a>
+                <x-cart-link />
 
                 @auth
                     @if (Auth::user()->isAdmin())
@@ -61,17 +57,7 @@
                         <span class="text-xs text-slate-500 hidden lg:inline px-2">Halo, <strong
                                 class="text-slate-800">{{ Auth::user()->name }}</strong></span>
                     @endif
-                    <a href="{{ route('profile.edit') }}"
-                        class="hidden sm:inline-flex items-center px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition">
-                        Profil
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit"
-                            class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition">
-                            Keluar
-                        </button>
-                    </form>
+                    <x-profile-menu />
                 @else
                     <a href="{{ route('login') }}"
                         class="text-sm font-medium text-slate-600 hover:text-blue-600 transition">

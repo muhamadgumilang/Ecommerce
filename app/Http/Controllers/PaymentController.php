@@ -17,13 +17,15 @@ class PaymentController extends Controller
         abort_unless(Auth::id() === $order->customer_id, 403, 'Anda tidak berhak mengakses pembayaran order ini.');
 
         $payment = $order->payment;
-        if ($payment && $payment->payment_status !== 'Failed') {
+        if ($payment && $payment->payment_status !== 'Failed' && filled($payment->snap_token)) {
             $order->load(['orderDetails.product', 'checkout', 'customer']);
             return view('payments.create', compact('order', 'payment'));
         }
 
         $order->load(['orderDetails.product', 'checkout', 'customer']);
         $this->configureMidtrans();
+        abort_if($order->orderDetails->isEmpty(), 422, 'Order belum memiliki detail produk.');
+
         $midtransOrderId = 'ORDER-' . $order->order_id . '-' . now()->timestamp;
         $itemDetails = $order->orderDetails->map(function ($detail) {
             $quantity = (int) $detail->quantity;
@@ -100,10 +102,17 @@ class PaymentController extends Controller
         $this->configureMidtrans();
 
         $notification = new Notification();
-        $orderId = explode('-', str_replace('ORDER-', '', $notification->order_id))[0];
+        $midtransOrderId = (string) ($notification->order_id ?? '');
+        if (! preg_match('/^ORDER-(\d+)-\d+$/', $midtransOrderId, $matches)) {
+            return response()->json(['message' => 'Format order ID Midtrans tidak valid.'], 422);
+        }
+
+        $orderId = $matches[1];
         $order = Order::find($orderId);
 
-        abort_unless($order, 404, 'Order tidak ditemukan.');
+        if (! $order) {
+            return response()->json(['message' => 'Order tidak ditemukan.'], 404);
+        }
 
         $status = match (true) {
             in_array($notification->transaction_status, ['capture', 'settlement'], true) => 'Verified',
@@ -132,7 +141,10 @@ class PaymentController extends Controller
 
     private function configureMidtrans(): void
     {
-        Config::$serverKey = config('services.midtrans.server_key');
+        $serverKey = config('services.midtrans.server_key');
+        abort_if(blank($serverKey), 500, 'MIDTRANS_SERVER_KEY belum dikonfigurasi.');
+
+        Config::$serverKey = $serverKey;
         Config::$isProduction = (bool) config('services.midtrans.is_production');
         Config::$isSanitized = (bool) config('services.midtrans.is_sanitized');
         Config::$is3ds = (bool) config('services.midtrans.is_3ds');

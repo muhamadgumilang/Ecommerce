@@ -28,14 +28,27 @@
                 <div class="flex items-center gap-3 h-16 border-b border-blue-100 mb-6 px-2">
                     <div
                         class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-sky-400 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-200">
-                        A
+                        {{ Auth::user()->isSeller() ? 'S' : 'A' }}
                     </div>
-                    <span class="text-lg font-bold tracking-wide text-blue-900">Admin System</span>
+                    <span class="text-lg font-bold tracking-wide text-blue-900">
+                        {{ Auth::user()->isSeller() ? 'Seller Center' : 'Admin System' }}
+                    </span>
                 </div>
 
                 <!-- Daftar Menu Sidebar -->
                 <nav class="space-y-1.5">
                     @if (Auth::user()->isSeller())
+                        <a href="{{ route('seller.dashboard') }}"
+                            class="group flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 {{ request()->routeIs('seller.dashboard') ? 'bg-gradient-to-r from-blue-500 to-sky-400 text-white shadow-lg shadow-blue-200' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-700' }}">
+                            <svg class="w-5 h-5 mr-3 {{ request()->routeIs('seller.dashboard') ? 'text-white' : 'text-blue-400 group-hover:text-blue-600' }}"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                                </path>
+                            </svg>
+                            <span class="text-sm font-medium">Dashboard</span>
+                        </a>
+
                         <a href="{{ route('seller.products.index') }}"
                             class="group flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 {{ request()->routeIs('seller.products.*') ? 'bg-gradient-to-r from-blue-500 to-sky-400 text-white shadow-lg shadow-blue-200' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-700' }}">
                             <svg class="w-5 h-5 mr-3 {{ request()->routeIs('seller.products.*') ? 'text-white' : 'text-blue-400 group-hover:text-blue-600' }}"
@@ -54,6 +67,16 @@
                                     d="M3 7h18M5 7l1 12h12l1-12M9 7V5a3 3 0 016 0v2"></path>
                             </svg>
                             <span class="text-sm font-medium">Pesanan Masuk</span>
+                        </a>
+
+                        <a href="{{ route('catalog.index') }}"
+                            class="group flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 text-slate-500 hover:bg-blue-50 hover:text-blue-700">
+                            <svg class="w-5 h-5 mr-3 text-blue-400 group-hover:text-blue-600" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                            </svg>
+                            <span class="text-sm font-medium">Lihat Katalog</span>
                         </a>
                     @else
                         <!-- Dashboard -->

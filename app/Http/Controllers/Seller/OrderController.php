@@ -67,6 +67,8 @@ class OrderController extends Controller
             abort(403, 'Akses ditolak. Pesanan ini tidak mengandung produk dari toko Anda.');
         }
 
+        abort_unless($order->order_status === 'Processing', 422, 'Pesanan belum siap untuk dikirim.');
+
         // Update status menjadi Shipped (Dikirim)
         $order->update([
             'order_status' => 'Shipped',

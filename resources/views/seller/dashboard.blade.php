@@ -3,7 +3,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h2 class="font-bold text-2xl text-slate-800">
-                    {{ __('Dashboard Petugas') }}
+                    {{ __('Dashboard Seller') }}
                 </h2>
                 <p class="text-sm text-slate-500 mt-1">
                     Selamat datang kembali, <strong class="text-blue-600">{{ Auth::user()->name }}</strong>! Kelola

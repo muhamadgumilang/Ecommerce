@@ -15,13 +15,15 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen flex flex-col justify-between selection:bg-blue-600 selection:text-white">
+<body
+    class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen flex flex-col justify-between selection:bg-blue-600 selection:text-white">
 
     <!-- Header / Navbar Utama -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between gap-4">
             <a href="{{ route('home') }}" class="font-bold text-lg text-slate-900 flex items-center gap-2 shrink-0">
-                <span class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm shadow-blue-600/25">Z</span>
+                <span
+                    class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm shadow-blue-600/25">Z</span>
                 <span class="tracking-tight text-blue-600 font-bold">Zenthercraft</span>
             </a>
 
@@ -38,11 +40,7 @@
                     class="hidden sm:inline-flex items-center px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition">
                     Pesanan Saya
                 </a>
-                <a href="{{ route('cart.index') }}"
-                    class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-slate-100 text-lg leading-none text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition"
-                    title="Keranjang" aria-label="Keranjang">
-                    &#128722;
-                </a>
+                <x-cart-link />
 
                 @auth
                     @if (Auth::user()->isAdmin())
@@ -57,18 +55,7 @@
                         </a>
                     @endif
 
-                    <a href="{{ route('profile.edit') }}"
-                        class="inline-flex items-center px-3 py-2 rounded-lg font-semibold text-blue-600 bg-blue-50">
-                        Profil Saya
-                    </a>
-
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit"
-                            class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition">
-                            Keluar
-                        </button>
-                    </form>
+                    <x-profile-menu />
                 @else
                     <a href="{{ route('login') }}"
                         class="text-sm font-medium text-slate-600 hover:text-blue-600 transition">
@@ -91,43 +78,54 @@
             </nav>
 
             <!-- Card Banner Identitas User -->
-            <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div
+                class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-sky-500 text-white font-bold text-2xl flex items-center justify-center shadow-md shadow-blue-500/20">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-sky-500 text-white font-bold text-2xl flex items-center justify-center shadow-md shadow-blue-500/20">
                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                     </div>
                     <div>
                         <div class="flex items-center gap-2.5">
                             <h1 class="text-xl sm:text-2xl font-bold text-slate-900">{{ Auth::user()->name }}</h1>
                             @if (Auth::user()->isAdmin())
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                                <span
+                                    class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
                                     Administrator
                                 </span>
                             @elseif (Auth::user()->isSeller())
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                <span
+                                    class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
                                     Mitra Penjual (Seller)
                                 </span>
                             @else
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                <span
+                                    class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
                                     Pelanggan (Customer)
                                 </span>
                             @endif
                         </div>
-                        <p class="text-xs text-slate-500 mt-1">{{ Auth::user()->email }} @if(Auth::user()->phone) &bull; {{ Auth::user()->phone }} @endif</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ Auth::user()->email }} @if (Auth::user()->phone)
+                                &bull; {{ Auth::user()->phone }}
+                            @endif
+                        </p>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2">
                     @if (Auth::user()->isSeller())
-                        <a href="{{ route('seller.dashboard') }}" class="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-semibold transition inline-flex items-center gap-1.5 border border-emerald-200">
+                        <a href="{{ route('seller.dashboard') }}"
+                            class="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-semibold transition inline-flex items-center gap-1.5 border border-emerald-200">
                             <span>🏪</span> Ke Dashboard Toko
                         </a>
                     @elseif (Auth::user()->isAdmin())
-                        <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-semibold transition inline-flex items-center gap-1.5 border border-blue-200">
+                        <a href="{{ route('admin.dashboard') }}"
+                            class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-semibold transition inline-flex items-center gap-1.5 border border-blue-200">
                             <span>⚙️</span> Ke Dashboard Admin
                         </a>
                     @else
-                        <a href="{{ route('orders.index') }}" class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-semibold transition inline-flex items-center gap-1.5 border border-blue-200">
+                        <a href="{{ route('orders.index') }}"
+                            class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-semibold transition inline-flex items-center gap-1.5 border border-blue-200">
                             <span>📦</span> Pesanan Saya
                         </a>
                     @endif
@@ -136,14 +134,16 @@
 
             <!-- Flash Status Messages -->
             @if (session('status') === 'profile-updated')
-                <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-sm flex items-center gap-3 shadow-sm">
+                <div
+                    class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-sm flex items-center gap-3 shadow-sm">
                     <span class="text-emerald-600 text-lg">✓</span>
                     <span>Informasi profil Anda berhasil diperbarui.</span>
                 </div>
             @endif
 
             @if (session('status') === 'password-updated')
-                <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-sm flex items-center gap-3 shadow-sm">
+                <div
+                    class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-sm flex items-center gap-3 shadow-sm">
                     <span class="text-emerald-600 text-lg">✓</span>
                     <span>Kata sandi akun Anda berhasil diperbarui.</span>
                 </div>
@@ -232,40 +232,47 @@
 
                         <!-- Password Saat Ini -->
                         <div>
-                            <label for="update_password_current_password" class="block text-sm font-semibold text-slate-700 mb-1">
+                            <label for="update_password_current_password"
+                                class="block text-sm font-semibold text-slate-700 mb-1">
                                 Kata Sandi Saat Ini <span class="text-rose-500">*</span>
                             </label>
                             <input id="update_password_current_password" name="current_password" type="password"
                                 class="w-full rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5 px-3.5 shadow-sm"
                                 autocomplete="current-password" placeholder="••••••••" />
                             @if ($errors->updatePassword->get('current_password'))
-                                <p class="mt-1 text-xs text-rose-500">{{ $errors->updatePassword->first('current_password') }}</p>
+                                <p class="mt-1 text-xs text-rose-500">
+                                    {{ $errors->updatePassword->first('current_password') }}</p>
                             @endif
                         </div>
 
                         <!-- Password Baru -->
                         <div>
-                            <label for="update_password_password" class="block text-sm font-semibold text-slate-700 mb-1">
+                            <label for="update_password_password"
+                                class="block text-sm font-semibold text-slate-700 mb-1">
                                 Kata Sandi Baru <span class="text-rose-500">*</span>
                             </label>
                             <input id="update_password_password" name="password" type="password"
                                 class="w-full rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5 px-3.5 shadow-sm"
                                 autocomplete="new-password" placeholder="Minimal 8 karakter" />
                             @if ($errors->updatePassword->get('password'))
-                                <p class="mt-1 text-xs text-rose-500">{{ $errors->updatePassword->first('password') }}</p>
+                                <p class="mt-1 text-xs text-rose-500">{{ $errors->updatePassword->first('password') }}
+                                </p>
                             @endif
                         </div>
 
                         <!-- Konfirmasi Password Baru -->
                         <div>
-                            <label for="update_password_password_confirmation" class="block text-sm font-semibold text-slate-700 mb-1">
+                            <label for="update_password_password_confirmation"
+                                class="block text-sm font-semibold text-slate-700 mb-1">
                                 Konfirmasi Kata Sandi Baru <span class="text-rose-500">*</span>
                             </label>
-                            <input id="update_password_password_confirmation" name="password_confirmation" type="password"
+                            <input id="update_password_password_confirmation" name="password_confirmation"
+                                type="password"
                                 class="w-full rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5 px-3.5 shadow-sm"
                                 autocomplete="new-password" placeholder="Ulangi kata sandi baru" />
                             @if ($errors->updatePassword->get('password_confirmation'))
-                                <p class="mt-1 text-xs text-rose-500">{{ $errors->updatePassword->first('password_confirmation') }}</p>
+                                <p class="mt-1 text-xs text-rose-500">
+                                    {{ $errors->updatePassword->first('password_confirmation') }}</p>
                             @endif
                         </div>
 
@@ -287,11 +294,13 @@
                             <span>⚠️</span> Hapus Akun
                         </h2>
                         <p class="text-xs text-slate-500 mt-1">
-                            Setelah akun Anda dihapus, seluruh data riwayat belanja dan profil akan dihapus secara permanen.
+                            Setelah akun Anda dihapus, seluruh data riwayat belanja dan profil akan dihapus secara
+                            permanen.
                         </p>
                     </div>
 
-                    <form method="post" action="{{ route('profile.destroy') }}" onsubmit="return confirm('Apakah Anda benar-benar yakin ingin menghapus akun Anda secara permanen?')">
+                    <form method="post" action="{{ route('profile.destroy') }}"
+                        onsubmit="return confirm('Apakah Anda benar-benar yakin ingin menghapus akun Anda secara permanen?')">
                         @csrf
                         @method('delete')
 
@@ -304,7 +313,8 @@
                                     class="w-full sm:w-80 rounded-xl border-slate-300 focus:border-rose-500 focus:ring-rose-500 text-sm py-2.5 px-3.5 shadow-sm"
                                     placeholder="Kata sandi akun Anda" required />
                                 @if ($errors->userDeletion->get('password'))
-                                    <p class="mt-1 text-xs text-rose-500">{{ $errors->userDeletion->first('password') }}</p>
+                                    <p class="mt-1 text-xs text-rose-500">
+                                        {{ $errors->userDeletion->first('password') }}</p>
                                 @endif
                             </div>
 
@@ -322,9 +332,11 @@
 
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 mt-12 py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div
+            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <div class="flex items-center gap-2">
-                <span class="w-6 h-6 rounded-lg bg-blue-600 text-white font-bold flex items-center justify-center text-xs">Z</span>
+                <span
+                    class="w-6 h-6 rounded-lg bg-blue-600 text-white font-bold flex items-center justify-center text-xs">Z</span>
                 <span class="font-semibold text-slate-800">Zenthercraft</span>
                 <span>&copy; {{ date('Y') }} Hak Cipta Dilindungi.</span>
             </div>

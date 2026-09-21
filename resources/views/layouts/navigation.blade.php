@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a
-                        href="{{ Auth::user()->isAdmin() ? route('dashboard') : (Auth::user()->isSeller() ? route('seller.products.index') : route('home')) }}">
+                        href="{{ Auth::user()->isAdmin() ? route('admin.dashboard') : (Auth::user()->isSeller() ? route('seller.dashboard') : route('home')) }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
                     </a>
                 </div>
@@ -27,6 +27,9 @@
                             {{ __('Kategori') }}
                         </x-nav-link>
                     @elseif (Auth::user()->isSeller())
+                        <x-nav-link :href="route('seller.dashboard')" :active="request()->routeIs('seller.dashboard')">
+                            {{ __('Dashboard') }}
+                        </x-nav-link>
                         <x-nav-link :href="route('seller.products.index')" :active="request()->routeIs('seller.products.*')">
                             {{ __('Produk Kelolaan') }}
                         </x-nav-link>
@@ -115,7 +118,11 @@
     <div :class="{ 'block': open, 'hidden': !open }" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             @if (Auth::user()->isAdmin())
-                <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                    {{ __('Dashboard') }}
+                </x-responsive-nav-link>
+            @elseif (Auth::user()->isSeller())
+                <x-responsive-nav-link :href="route('seller.dashboard')" :active="request()->routeIs('seller.dashboard')">
                     {{ __('Dashboard') }}
                 </x-responsive-nav-link>
             @endif
@@ -141,6 +148,9 @@
                         {{ __('Semua Pesanan') }}
                     </x-responsive-nav-link>
                 @elseif(Auth::check() && Auth::user()->isSeller())
+                    <x-responsive-nav-link :href="route('seller.dashboard')">
+                        {{ __('Dashboard') }}
+                    </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('seller.products.index')">
                         {{ __('Produk Kelolaan') }}
                     </x-responsive-nav-link>

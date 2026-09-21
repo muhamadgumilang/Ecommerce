@@ -40,11 +40,7 @@
                     class="hidden sm:inline-flex items-center px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition">
                     Pesanan Saya
                 </a>
-                <a href="{{ route('cart.index') }}"
-                    class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 text-lg leading-none text-blue-600 transition"
-                    title="Keranjang" aria-label="Keranjang">
-                    &#128722;
-                </a>
+                <x-cart-link />
 
                 @auth
                     @if (Auth::user()->isAdmin())
@@ -61,17 +57,7 @@
                         <span class="text-xs text-slate-500 hidden lg:inline px-2">Halo, <strong
                                 class="text-slate-800">{{ Auth::user()->name }}</strong></span>
                     @endif
-                    <a href="{{ route('profile.edit') }}"
-                        class="hidden sm:inline-flex items-center px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition">
-                        Profil
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit"
-                            class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition">
-                            Keluar
-                        </button>
-                    </form>
+                    <x-profile-menu />
                 @else
                     <a href="{{ route('login') }}"
                         class="text-sm font-medium text-slate-600 hover:text-blue-600 transition">
@@ -141,8 +127,8 @@
                 <div
                     class="bg-white rounded-2xl border border-slate-200 p-12 sm:p-16 text-center shadow-sm max-w-2xl mx-auto">
                     <div
-                        class="w-20 h-20 mx-auto rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-4xl mb-5">
-                        &#128722;
+                        class="w-20 h-20 mx-auto rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center mb-5">
+                        <x-cart-icon class="w-10 h-10" />
                     </div>
                     <h2 class="text-xl font-bold text-slate-900">Keranjang Belanja Masih Kosong</h2>
                     <p class="text-sm text-slate-500 mt-2 max-w-md mx-auto">
@@ -207,7 +193,7 @@
                                                 alt="{{ $item->product->product_name }}"
                                                 class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                                         @else
-                                            <span class="text-2xl text-slate-400">&#128722;</span>
+                                            <x-cart-icon class="w-8 h-8 text-slate-300" />
                                         @endif
                                     </div>
                                 </div>

@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Pembayaran Pesanan #{{ $order->order_id }} - {{ config('app.name', 'E-Commerce') }}</title>
-    <script src="https://app.sandbox.midtrans.com/snap/snap.js"
+    <script
+        src="{{ config('services.midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
         data-client-key="{{ config('services.midtrans.client_key') }}"></script>
 
     <!-- Fonts -->
@@ -42,11 +43,7 @@
                     class="hidden sm:inline-flex items-center px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition">
                     Pesanan Saya
                 </a>
-                <a href="{{ route('cart.index') }}"
-                    class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-slate-100 text-lg leading-none text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition"
-                    title="Keranjang" aria-label="Keranjang">
-                    &#128722;
-                </a>
+                <x-cart-link />
 
                 @auth
                     @if (Auth::user()->isAdmin())
@@ -63,17 +60,7 @@
                         <span class="text-xs text-slate-500 hidden lg:inline px-2">Halo, <strong
                                 class="text-slate-800">{{ Auth::user()->name }}</strong></span>
                     @endif
-                    <a href="{{ route('profile.edit') }}"
-                        class="hidden sm:inline-flex items-center px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition">
-                        Profil
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit"
-                            class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition">
-                            Keluar
-                        </button>
-                    </form>
+                    <x-profile-menu />
                 @else
                     <a href="{{ route('login') }}"
                         class="text-sm font-medium text-slate-600 hover:text-blue-600 transition">
@@ -309,18 +296,35 @@
 </body>
 
 <script>
-    document.getElementById('pay-button').addEventListener('click', function() {
-        window.snap.pay(@json($payment->snap_token), {
-            onSuccess: function() {
-                window.location.href = @json(route('orders.show', $order));
-            },
-            onPending: function() {
-                window.location.href = @json(route('orders.show', $order));
-            },
-            onError: function() {
-                window.location.reload();
-            },
-            onClose: function() {}
+    document.addEventListener('DOMContentLoaded', function() {
+        const payButton = document.getElementById('pay-button');
+        const snapToken = @json($payment->snap_token);
+
+        payButton.addEventListener('click', function() {
+            if (!snapToken || !window.snap) {
+                window.alert(
+                    'Pembayaran belum siap. Silakan muat ulang halaman atau coba beberapa saat lagi.'
+                    );
+                return;
+            }
+
+            payButton.disabled = true;
+            payButton.classList.add('opacity-70', 'cursor-wait');
+            window.snap.pay(snapToken, {
+                onSuccess: function() {
+                    window.location.href = @json(route('orders.show', $order));
+                },
+                onPending: function() {
+                    window.location.href = @json(route('orders.show', $order));
+                },
+                onError: function() {
+                    window.location.reload();
+                },
+                onClose: function() {
+                    payButton.disabled = false;
+                    payButton.classList.remove('opacity-70', 'cursor-wait');
+                }
+            });
         });
     });
 </script>
