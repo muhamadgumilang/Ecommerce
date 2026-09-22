@@ -16,23 +16,23 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="font-sans antialiased">
-    <!-- Layout Wrapper dengan Sidebar di Kiri -->
-    <div class="flex h-screen bg-slate-50">
-
-        <!-- 1. SIDEBAR KIRI -->
+<body class="font-sans antialiased bg-slate-100 text-slate-700">
+    <div class="flex h-screen bg-transparent">
         <aside
-            class="w-64 bg-white text-slate-700 min-h-screen p-4 flex flex-col justify-between hidden md:flex shadow-lg border-r border-blue-100">
+            class="hidden w-72 min-h-screen flex-col justify-between border-r border-slate-200/80 bg-white/80 p-4 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl md:flex">
             <div>
                 <!-- Logo / Judul Brand -->
-                <div class="flex items-center gap-3 h-16 border-b border-blue-100 mb-6 px-2">
+                <div class="mb-6 flex h-16 items-center gap-3 border-b border-slate-200/80 px-2">
                     <div
-                        class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-sky-400 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-200">
+                        class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-sky-500 text-lg font-bold text-white shadow-lg shadow-blue-500/25">
                         {{ Auth::user()->isSeller() ? 'S' : 'A' }}
                     </div>
-                    <span class="text-lg font-bold tracking-wide text-blue-900">
-                        {{ Auth::user()->isSeller() ? 'Seller Center' : 'Admin System' }}
-                    </span>
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-500">Panel</p>
+                        <span class="text-lg font-bold tracking-wide text-slate-900">
+                            {{ Auth::user()->isSeller() ? 'Seller Center' : 'Admin System' }}
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Daftar Menu Sidebar -->
@@ -190,18 +190,16 @@
         </aside>
 
         <!-- 2. KONTEN UTAMA DI SEBELAH KANAN -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-            <!-- Page Heading (Jika ada) -->
+        <div class="flex flex-1 flex-col overflow-hidden">
             @isset($header)
-                <header class="bg-white border-b border-slate-200 shadow-sm">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <header class="border-b border-slate-200/80 bg-white/80 shadow-sm backdrop-blur-xl">
+                    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
                 </header>
             @endisset
 
-            <!-- Page Content -->
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 p-6">
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-transparent p-4 sm:p-6 lg:p-8">
                 {{ $slot }}
             </main>
         </div>

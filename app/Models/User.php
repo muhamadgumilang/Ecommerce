@@ -25,6 +25,11 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function getIdAttribute(): mixed
+    {
+        return $this->getAttribute($this->getKeyName());
+    }
+
     // Role helper methods
     public function isAdmin(): bool
     {

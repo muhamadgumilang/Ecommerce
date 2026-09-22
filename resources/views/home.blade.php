@@ -17,18 +17,18 @@
 </head>
 
 <body
-    class="font-sans antialiased bg-[#f5f7fb] text-slate-800 min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-blue-600 selection:text-white">
+    class="font-sans antialiased min-h-screen overflow-x-hidden bg-slate-100 text-slate-800 selection:bg-blue-600 selection:text-white">
 
     <!-- Wrapper Utama -->
     <div class="flex flex-col min-h-screen justify-between">
 
         <!-- Header / Navbar (Nuansa Putih & Border Halus) -->
-        <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between gap-4">
-                <!-- Logo / Judul Brand -->
-                <a href="{{ route('home') }}" class="font-bold text-lg text-slate-900 flex items-center gap-2 shrink-0">
+        <header
+            class="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+            <div class="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+                <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-2 text-lg font-bold text-slate-900">
                     <span
-                        class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm shadow-blue-600/25">E</span>
+                        class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-sky-500 text-sm font-bold text-white shadow-lg shadow-blue-600/25">E</span>
                     <span class="tracking-tight">E-Commerce</span>
                 </a>
 
@@ -89,9 +89,8 @@
                 <div class="relative grid md:grid-cols-[1.15fr_.85fr] gap-8 lg:gap-12 items-center">
                     <div>
                         <!-- Badge Kecil -->
-                        <div
-                            class="inline-flex items-center gap-2 bg-white/10 text-blue-200 text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider mb-5 border border-white/10">
-                            <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                        <div class="pill mb-5 border-white/15 bg-white/10 text-blue-100">
+                            <span class="h-2 w-2 rounded-full bg-blue-300"></span>
                             <span>Belanja lebih mudah di E-Commerce</span>
                         </div>
 
@@ -110,7 +109,7 @@
                         <!-- Tombol Aksi -->
                         <div class="flex flex-col sm:flex-row justify-center gap-3">
                             <a href="{{ route('catalog.index') }}"
-                                class="px-6 py-3 bg-blue-500 hover:bg-blue-400 text-white font-bold rounded-xl transition text-sm shadow-lg shadow-blue-900/30">
+                                class="primary-button text-sm shadow-lg shadow-blue-600/25">
                                 Lihat Katalog Lengkap
                             </a>
 
@@ -123,7 +122,7 @@
                                 @endif
                             @else
                                 <a href="{{ route('login') }}"
-                                    class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition text-sm shadow-lg shadow-blue-600/20">
+                                    class="secondary-button border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white">
                                     Masuk / Login Sekarang
                                 </a>
                             @endauth
@@ -165,13 +164,13 @@
             <!-- Section Daftar Produk -->
             <div>
                 <div
-                    class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 mb-6 border-b border-slate-200 pb-4">
+                    class="mb-6 flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                        <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Produk Pilihan Kami</h2>
-                        <p class="text-sm text-slate-500 mt-1">Pilihan terbaru yang siap Anda pesan hari ini.</p>
+                        <h2 class="section-title">Produk Pilihan Kami</h2>
+                        <p class="mt-1 text-sm text-slate-500">Pilihan terbaru yang siap Anda pesan hari ini.</p>
                     </div>
                     <a href="{{ route('catalog.index') }}"
-                        class="text-sm text-blue-600 hover:text-blue-700 font-semibold transition">
+                        class="text-sm font-semibold text-blue-600 transition hover:text-blue-700">
                         Lihat semua produk &rarr;
                     </a>
                 </div>
@@ -180,7 +179,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         @foreach ($products as $product)
                             <div
-                                class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:-translate-y-1 hover:border-blue-300 hover:shadow-xl transition duration-300 flex flex-col justify-between group min-h-[390px]">
+                                class="soft-card group flex min-h-[390px] flex-col justify-between overflow-hidden rounded-2xl transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(37,99,235,0.12)]">
                                 <div>
                                     <!-- Gambar Produk dengan Ukuran Terkunci -->
                                     <div

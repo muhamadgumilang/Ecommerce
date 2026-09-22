@@ -53,7 +53,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 // Route Manajemen Seller (Dashboard Toko, Produk Toko, Pesanan Masuk Toko)
 Route::middleware(['auth', 'verified', 'seller'])->prefix('seller')->name('seller.')->group(function () {
     Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
-    Route::resource('products', SellerProductController::class);
+    Route::resource('products', SellerProductController::class)->except(['show']);
     Route::get('/orders', [SellerOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [SellerOrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}/ship', [SellerOrderController::class, 'ship'])->name('orders.ship');

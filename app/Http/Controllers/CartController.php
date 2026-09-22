@@ -135,7 +135,8 @@ class CartController extends Controller
 
     public function removeItem($cart_item_id)
     {
-        $cartItem = CartItem::findOrFail($cart_item_id);
+        $cartItem = CartItem::with('cart')->findOrFail($cart_item_id);
+        abort_unless(Auth::id() === $cartItem->cart->customer_id, 403);
         $cartItem->delete();
 
         return redirect()->back()->with('success', 'Item berhasil dihapus dari keranjang.');
