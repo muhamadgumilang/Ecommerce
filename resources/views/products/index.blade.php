@@ -41,6 +41,8 @@
                     Pesanan Saya
                 </a>
                 <x-cart-link />
+                <x-notification-menu />
+                <x-wishlist-link />
 
                 @auth
                     @if (Auth::user()->isAdmin())
@@ -141,6 +143,15 @@
                                     class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-sm shadow-blue-500/20 transition">
                                     Detail
                                 </a>
+                                @auth
+                                    @if (Auth::user()->isCustomer())
+                                        <form action="{{ route('wishlist.store', $product) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" title="Simpan ke wishlist"
+                                                class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-lg leading-none text-rose-600 hover:bg-rose-100">♡</button>
+                                        </form>
+                                    @endif
+                                @endauth
                             </div>
                         </div>
                     </div>

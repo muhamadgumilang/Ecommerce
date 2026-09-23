@@ -11,6 +11,10 @@
                 </p>
             </div>
             <div class="flex items-center gap-3">
+                <a href="{{ route('home') }}"
+                    class="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-sm font-semibold shadow-sm transition flex items-center gap-2">
+                    <span>🛍️</span> {{ __('Lihat Toko') }}
+                </a>
                 <a href="{{ route('seller.products.create') }}"
                     class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold shadow-sm transition flex items-center gap-2">
                     <span>+</span> {{ __('Tambah Produk') }}
@@ -31,7 +35,7 @@
             @endif
 
             <!-- Statistik Toko Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <!-- Total Produk -->
                 <div
                     class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
@@ -46,6 +50,20 @@
                     <div
                         class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl font-bold">
                         📦
+                    </div>
+                </div>
+
+                <!-- Kategori dari Admin -->
+                <div
+                    class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <div class="text-sm font-medium text-slate-500">Kategori Tersedia</div>
+                        <div class="mt-2 text-3xl font-bold text-slate-900">{{ $totalCategories }}</div>
+                        <span class="mt-2 text-xs text-slate-400 block">Master kategori dikelola Admin</span>
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center text-2xl font-bold">
+                        🏷️
                     </div>
                 </div>
 
@@ -82,10 +100,46 @@
                 </div>
             </div>
 
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                    <h3 class="text-base font-bold text-slate-800">Laporan Penjualan</h3>
+                    <p class="mt-1 text-xs text-slate-500">Omset toko 6 bulan terakhir.</p>
+                    @php($maxMonthlySales = max(1, $monthlySales->max('total')))
+                    <div class="mt-5 space-y-4">
+                        @foreach ($monthlySales as $month)
+                            <div>
+                                <div class="mb-1 flex justify-between text-xs">
+                                    <span class="font-medium text-slate-500">{{ $month['label'] }}</span>
+                                    <span class="font-semibold text-slate-700">Rp {{ number_format($month['total'], 0, ',', '.') }}</span>
+                                </div>
+                                <div class="h-2 overflow-hidden rounded-full bg-slate-100">
+                                    <div class="h-full rounded-full bg-emerald-500" style="width: {{ ($month['total'] / $maxMonthlySales) * 100 }}%"></div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+
+                <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                    <h3 class="text-base font-bold text-slate-800">Produk Terlaris</h3>
+                    <p class="mt-1 text-xs text-slate-500">Produk toko dengan penjualan terbanyak.</p>
+                    <div class="mt-5 space-y-4">
+                        @forelse ($topProducts as $item)
+                            <div class="flex items-center justify-between gap-4">
+                                <p class="truncate text-sm font-semibold text-slate-800">{{ $item->product?->product_name ?? 'Produk dihapus' }}</p>
+                                <span class="shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">{{ $item->total_quantity }} terjual</span>
+                            </div>
+                        @empty
+                            <p class="py-8 text-center text-sm text-slate-400">Belum ada penjualan terverifikasi.</p>
+                        @endforelse
+                    </div>
+                </section>
+            </div>
+
             <!-- Pintasan Cepat -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
                 <h3 class="text-base font-bold text-slate-800 mb-4">Navigasi Pengelolaan Toko</h3>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
                     <a href="{{ route('seller.products.create') }}"
                         class="p-4 bg-slate-50 hover:bg-blue-50 hover:border-blue-200 border border-slate-200 rounded-xl text-center transition group">
                         <span class="text-2xl group-hover:scale-110 transition inline-block">➕</span>
@@ -105,6 +159,12 @@
                         <span class="text-2xl group-hover:scale-110 transition inline-block">🚚</span>
                         <h4 class="mt-2 text-sm font-semibold text-slate-700 group-hover:text-blue-600">Pesanan Masuk
                         </h4>
+                    </a>
+
+                    <a href="{{ route('seller.categories.index') }}"
+                        class="p-4 bg-slate-50 hover:bg-blue-50 hover:border-blue-200 border border-slate-200 rounded-xl text-center transition group">
+                        <span class="text-2xl group-hover:scale-110 transition inline-block">🏷️</span>
+                        <h4 class="mt-2 text-sm font-semibold text-slate-700 group-hover:text-blue-600">Kategori Saya</h4>
                     </a>
 
                     <a href="{{ route('catalog.index') }}"

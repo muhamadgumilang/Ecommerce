@@ -68,6 +68,11 @@ class User extends Authenticatable
         return $this->hasMany(Order::class, 'customer_id', 'user_id');
     }
 
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class, 'user_id', 'user_id');
+    }
+
     // Relasi User sebagai Admin yang memverifikasi Pembayaran
     public function verifiedPayments()
     {

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Keranjang Belanja - {{ config('app.name', 'Zenthercraft') }}</title>
+    <title>Keranjang Belanja - {{ config('app.name', 'E-Commerce') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -41,6 +41,8 @@
                     Pesanan Saya
                 </a>
                 <x-cart-link />
+                <x-notification-menu />
+                <x-wishlist-link />
 
                 @auth
                     @if (Auth::user()->isAdmin())
@@ -71,6 +73,20 @@
     <!-- Main Content -->
     <main class="py-8 sm:py-10 flex-1">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+
+            @if (session('success'))
+                <div class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-700 shadow-sm">
+                    <span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 text-white">✓</span>
+                    <span>{{ session('success') }}</span>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="flex items-center gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-700 shadow-sm">
+                    <span class="flex h-7 w-7 items-center justify-center rounded-full bg-rose-500 text-white">!</span>
+                    <span>{{ session('error') }}</span>
+                </div>
+            @endif
 
             <!-- Breadcrumbs -->
             <nav class="flex items-center text-sm text-slate-500 space-x-2">

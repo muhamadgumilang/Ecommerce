@@ -41,6 +41,8 @@
                     Pesanan Saya
                 </a>
                 <x-cart-link />
+                <x-notification-menu />
+                <x-wishlist-link />
 
                 @auth
                     @if (Auth::user()->isAdmin())

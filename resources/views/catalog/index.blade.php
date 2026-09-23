@@ -41,6 +41,8 @@
                     Pesanan Saya
                 </a>
                 <x-cart-link />
+                <x-notification-menu />
+                <x-wishlist-link />
 
                 @auth
                     @if (Auth::user()->isAdmin())
@@ -93,22 +95,79 @@
                     <p class="mt-1 text-sm text-slate-500">Temukan berbagai koleksi produk berkualitas terbaik dengan
                         harga terjangkau.</p>
                 </div>
-                <div
-                    class="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-600">
-                    Total: <span class="font-bold text-blue-600">{{ $products->total() }} Produk</span>
-                </div>
+                <form action="{{ route('catalog.index') }}" method="GET" class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                    <label for="catalog-search" class="sr-only">Cari produk atau kategori</label>
+                    <input id="catalog-search" type="search" name="search" value="{{ $search }}"
+                        placeholder="Cari produk atau kategori..."
+                        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 sm:w-72">
+                    <button type="submit"
+                        class="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
+                        Cari
+                    </button>
+                </form>
             </div>
+
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-[250px_minmax(0,1fr)]">
+                <aside class="soft-card h-fit rounded-2xl p-5 lg:sticky lg:top-24">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl text-blue-600">☷</span>
+                        <h2 class="text-base font-bold text-slate-900">Filter Produk</h2>
+                    </div>
+
+                    <form action="{{ route('catalog.index') }}" method="GET" class="mt-6">
+                        <input type="hidden" name="search" value="{{ $search }}">
+                        <label for="category" class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">Kategori</label>
+                        <select id="category" name="category" class="w-full rounded-xl border-slate-200 bg-slate-50 text-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Semua kategori</option>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->ids }}" {{ $categoryFilter === $category->ids ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <label class="mt-5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Rentang Harga</label>
+                        <div class="mt-2 grid grid-cols-2 gap-2">
+                            <input type="number" name="min_price" value="{{ $minPrice }}" min="0" placeholder="Min"
+                                class="w-full rounded-xl border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500">
+                            <input type="number" name="max_price" value="{{ $maxPrice }}" min="0" placeholder="Max"
+                                class="w-full rounded-xl border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+
+                        <button type="submit" class="mt-5 w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
+                            Terapkan Filter
+                        </button>
+                    </form>
+
+                    @if ($categoryFilter !== '' || $minPrice !== null || $maxPrice !== null)
+                        <a href="{{ route('catalog.index', ['search' => $search]) }}" class="mt-3 block text-center text-xs font-semibold text-blue-600 hover:text-blue-700">
+                            Hapus filter
+                        </a>
+                    @endif
+                </aside>
+
+                <section class="min-w-0">
+                    <div class="mb-4 flex items-center justify-between text-xs text-slate-500">
+                        <span>Total: <strong class="text-blue-600">{{ $products->total() }} Produk</strong></span>
+                        @if ($search !== '')
+                            <a href="{{ route('catalog.index') }}" class="font-semibold text-blue-600 hover:text-blue-700">
+                                Hapus pencarian
+                            </a>
+                        @endif
+                    </div>
 
             <!-- Grid Produk -->
             @if ($products->isEmpty())
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-16 text-center max-w-xl mx-auto">
                     <div class="text-5xl mb-4">&#128230;</div>
-                    <h2 class="text-lg font-bold text-slate-900">Belum Ada Produk Tersedia</h2>
-                    <p class="text-sm text-slate-500 mt-1">Produk saat ini sedang dalam persiapan. Silakan periksa
-                        kembali nanti.</p>
-                    <a href="{{ route('home') }}"
+                    <h2 class="text-lg font-bold text-slate-900">
+                        {{ $search !== '' ? 'Produk Tidak Ditemukan' : 'Belum Ada Produk Tersedia' }}</h2>
+                    <p class="text-sm text-slate-500 mt-1">
+                        {{ $search !== '' ? 'Coba gunakan kata kunci produk atau kategori lainnya.' : 'Produk saat ini sedang dalam persiapan. Silakan periksa kembali nanti.' }}
+                    </p>
+                    <a href="{{ $search !== '' ? route('catalog.index') : route('home') }}"
                         class="inline-block mt-6 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition">
-                        Kembali ke Beranda
+                        {{ $search !== '' ? 'Lihat Semua Produk' : 'Kembali ke Beranda' }}
                     </a>
                 </div>
             @else
@@ -131,6 +190,7 @@
                                         {{ $item->category->category_name }}
                                     </span>
                                 @endif
+
                             </div>
 
                             <!-- Detail Produk -->
@@ -145,7 +205,7 @@
                                     <div class="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
                                         <span>🏪</span>
                                         <span
-                                            class="font-medium text-slate-600 truncate">{{ $item->seller?->name ?? 'Zenthercraft Store' }}</span>
+                                            class="font-medium text-slate-600 truncate">{{ $item->seller?->name ?? 'E-Commerce' }}</span>
                                     </div>
                                     <p class="text-slate-500 text-xs mt-1.5 line-clamp-2 leading-relaxed">
                                         {{ $item->description ?? 'Tidak ada deskripsi produk.' }}
@@ -181,6 +241,15 @@
                                                     d="M9 5l7 7-7 7"></path>
                                             </svg>
                                         </a>
+                                        @auth
+                                            @if (Auth::user()->isCustomer())
+                                                <form action="{{ route('wishlist.store', $item) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" title="Simpan ke wishlist"
+                                                        class="inline-flex items-center justify-center rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-lg leading-none text-rose-600 hover:bg-rose-100">♡</button>
+                                                </form>
+                                            @endif
+                                        @endauth
                                     </div>
                                 </div>
                             </div>
@@ -193,6 +262,8 @@
                     {{ $products->links() }}
                 </div>
             @endif
+                </section>
+            </div>
 
         </div>
     </main>

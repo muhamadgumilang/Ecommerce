@@ -41,6 +41,8 @@
                     Pesanan Saya
                 </a>
                 <x-cart-link />
+                <x-notification-menu />
+                <x-wishlist-link />
 
                 @auth
                     @if (Auth::user()->isAdmin())
@@ -116,6 +118,20 @@
                     <span>{{ session('error') }}</span>
                 </div>
             @endif
+
+            @php
+                $paymentStatus = $order->payment?->payment_status ?? 'Pending';
+                $paymentMessages = [
+                    'Pending' => ['Pembayaran menunggu konfirmasi.', 'bg-amber-50 border-amber-200 text-amber-800'],
+                    'Verified' => ['Pembayaran berhasil diterima. Pesanan sedang diproses.', 'bg-emerald-50 border-emerald-200 text-emerald-800'],
+                    'Failed' => ['Pembayaran gagal. Silakan coba lakukan pembayaran kembali.', 'bg-rose-50 border-rose-200 text-rose-800'],
+                ];
+                [$paymentMessage, $paymentStyle] = $paymentMessages[$paymentStatus] ?? ['Status pembayaran: ' . $paymentStatus, 'bg-slate-50 border-slate-200 text-slate-700'];
+            @endphp
+            <div class="rounded-2xl border p-4 text-sm {{ $paymentStyle }} flex items-center gap-3 shadow-sm">
+                <span class="text-lg">{{ $paymentStatus === 'Verified' ? '✓' : ($paymentStatus === 'Failed' ? '!' : '◷') }}</span>
+                <span>{{ $paymentMessage }}</span>
+            </div>
 
             <!-- Order Header Card -->
             <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-7 shadow-sm">
@@ -488,6 +504,15 @@
                                 <p class="text-[11px] text-center text-slate-400">
                                     Silakan lakukan pembayaran agar pesanan segera diproses.
                                 </p>
+                                <form action="{{ route('orders.cancel', $order) }}" method="POST"
+                                    onsubmit="return confirm('Batalkan pesanan ini? Stok akan dikembalikan.')">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit"
+                                        class="w-full rounded-xl border border-rose-200 bg-rose-50 px-5 py-2.5 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">
+                                        Batalkan Pesanan
+                                    </button>
+                                </form>
                             @elseif ($order->payment && $order->payment->payment_status === 'Pending')
                                 <div
                                     class="rounded-xl bg-amber-50 border border-amber-200 p-3.5 text-xs text-amber-800 flex items-start gap-2.5">

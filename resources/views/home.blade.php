@@ -48,6 +48,8 @@
                             Pesanan Saya
                         </a>
                         <x-cart-link />
+                        <x-notification-menu />
+                        <x-wishlist-link />
                         @if (Auth::user()->isAdmin())
                             <a href="{{ route('admin.dashboard') }}"
                                 class="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition shadow-sm shadow-blue-600/20">
@@ -209,7 +211,7 @@
                                         <div class="flex items-center gap-1.5 text-xs text-slate-500 mb-2">
                                             <span>🏪</span>
                                             <span
-                                                class="truncate font-medium text-slate-600">{{ $product->seller?->name ?? 'Zenthercraft Store' }}</span>
+                                                class="truncate font-medium text-slate-600">{{ $product->seller?->name ?? 'E-Commerce' }}</span>
                                         </div>
                                         <p class="text-sm text-slate-500 line-clamp-2 mb-4 leading-relaxed">
                                             {{ $product->description ?? 'Tidak ada deskripsi produk.' }}

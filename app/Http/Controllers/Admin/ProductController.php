@@ -6,26 +6,32 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage; // Jangan lupa import Storage
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with(['category', 'seller'])->latest()->paginate(10);
+        $products = Product::where('seller_id', $request->user()->user_id)
+            ->with(['category', 'seller'])
+            ->latest()
+            ->paginate(10);
 
         return view('admin.products.index', compact('products'));
     }
 
     public function create()
     {
-        $categories = Category::all();
+        $categories = Category::where('owner_id', Auth::id())->get();
 
         return view('admin.products.create', compact('categories'));
     }
 
     public function store(Request $request)
     {
+        abort_unless(Category::where('category_id', $request->integer('category_id'))
+            ->where('owner_id', $request->user()->user_id)->exists(), 422, 'Kategori bukan milik Admin ini.');
         $request->validate([
             'category_id' => 'required|exists:categories,category_id',
             'product_name' => 'required|string|max:150',
@@ -56,13 +62,17 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $categories = Category::all();
+        abort_unless($product->seller_id === Auth::id(), 403);
+        $categories = Category::where('owner_id', Auth::id())->get();
 
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
     public function update(Request $request, Product $product)
     {
+        abort_unless($product->seller_id === $request->user()->user_id, 403);
+        abort_unless(Category::where('category_id', $request->integer('category_id'))
+            ->where('owner_id', $request->user()->user_id)->exists(), 422, 'Kategori bukan milik Admin ini.');
         $request->validate([
             'category_id' => 'required|exists:categories,category_id',
             'product_name' => 'required|string|max:150',
@@ -97,6 +107,7 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        abort_unless($product->seller_id === Auth::id(), 403);
         // Hapus file gambar dari storage saat produk dihapus
         if ($product->image && Storage::disk('public')->exists($product->image)) {
             Storage::disk('public')->delete($product->image);

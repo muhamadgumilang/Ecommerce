@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class OrderController extends Controller
 {
@@ -47,6 +48,18 @@ class OrderController extends Controller
         $order->load(['orderDetails.product', 'checkout', 'payment']);
 
         return view('orders.show', compact('order'));
+    }
+
+    public function paymentStatus(Order $order): JsonResponse
+    {
+        abort_unless(Auth::id() === $order->customer_id, 403, 'Anda tidak berhak melihat status pembayaran order ini.');
+
+        $order->load('payment');
+
+        return response()->json([
+            'payment_status' => $order->payment?->payment_status ?? 'Pending',
+            'order_status' => $order->order_status,
+        ]);
     }
 
     public function processCheckout(Request $request)
@@ -143,4 +156,25 @@ class OrderController extends Controller
 
         return view('orders.index', compact('orders'));
     }
+
+    public function cancel(Order $order)
+    {
+        abort_unless(Auth::id() === $order->customer_id, 403, 'Anda tidak berhak membatalkan order ini.');
+        abort_unless($order->order_status === 'Pending Payment', 422, 'Pesanan yang sudah diproses tidak dapat dibatalkan.');
+
+        $order->load(['orderDetails.product', 'payment']);
+
+        DB::transaction(function () use ($order): void {
+            if (! $order->payment?->stock_released) {
+                foreach ($order->orderDetails as $detail) {
+                    $detail->product()->lockForUpdate()->first()?->increment('stock', $detail->quantity);
+                }
+            }
+
+            $order->update(['order_status' => 'Cancelled']);
+        });
+
+        return redirect()->route('orders.show', $order)->with('success', 'Pesanan berhasil dibatalkan.');
+    }
+
 }

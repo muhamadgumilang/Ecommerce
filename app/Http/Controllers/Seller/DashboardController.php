@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Product;
@@ -17,6 +18,7 @@ class DashboardController extends Controller
 
         // Total produk aktif milik seller ini
         $totalProducts = Product::where('seller_id', $sellerId)->count();
+        $totalCategories = Category::where('owner_id', $sellerId)->count();
 
         // Total pesanan masuk yang mengandung produk seller ini
         $incomingOrdersCount = Order::whereHas('orderDetails.product', function ($q) use ($sellerId) {
@@ -41,12 +43,35 @@ class DashboardController extends Controller
                 })->with('product');
             }
         ])->latest('order_date')->take(5)->get();
+        $monthlySales = collect(range(5, 0))->map(function (int $monthsAgo) use ($sellerId) {
+            $month = now()->subMonths($monthsAgo);
+
+            return [
+                'label' => $month->translatedFormat('M Y'),
+                'total' => (float) OrderDetail::whereHas('product', fn ($query) => $query->where('seller_id', $sellerId))
+                    ->whereHas('order', fn ($query) => $query->whereIn('order_status', ['Processing', 'Shipped', 'Completed']))
+                    ->whereBetween('created_at', [$month->copy()->startOfMonth(), $month->copy()->endOfMonth()])
+                    ->sum('subtotal'),
+            ];
+        });
+        $topProducts = OrderDetail::with('product')
+            ->whereHas('product', fn ($query) => $query->where('seller_id', $sellerId))
+            ->whereHas('order', fn ($query) => $query->whereIn('order_status', ['Processing', 'Shipped', 'Completed']))
+            ->select('product_id')
+            ->selectRaw('SUM(quantity) as total_quantity, SUM(subtotal) as total_sales')
+            ->groupBy('product_id')
+            ->orderByDesc('total_quantity')
+            ->take(5)
+            ->get();
 
         return view('seller.dashboard', compact(
             'totalProducts',
+            'totalCategories',
             'incomingOrdersCount',
             'totalRevenue',
-            'recentOrders'
+            'recentOrders',
+            'monthlySales',
+            'topProducts'
         ));
     }
 }
