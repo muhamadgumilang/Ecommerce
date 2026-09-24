@@ -12,47 +12,58 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. DUMMY USERS (Admin, Seller, Customer)
-        $admin = User::create([
-            'name' => 'Admin System',
-            'email' => 'admin@gmail.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('password123'),
-            'phone' => '081234567890',
-            'role' => 'Admin',
-        ]);
+        // 1. DUMMY USERS (Admin, Seller, Customer) - Gunakan firstOrCreate untuk hindari duplicate
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@gmail.com'],
+            [
+                'name' => 'Admin System',
+                'email_verified_at' => now(),
+                'password' => Hash::make('password123'),
+                'phone' => '081234567890',
+                'role' => 'Admin',
+            ]
+        );
 
-        $seller = User::create([
-            'name' => 'Penjual Toko Kita',
-            'email' => 'seller@gmail.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('password123'),
-            'phone' => '081298765432',
-            'role' => 'Seller',
-        ]);
+        $seller = User::firstOrCreate(
+            ['email' => 'seller@gmail.com'],
+            [
+                'name' => 'Penjual Toko Kita',
+                'email_verified_at' => now(),
+                'password' => Hash::make('password123'),
+                'phone' => '081298765432',
+                'role' => 'Seller',
+            ]
+        );
 
-        $customer = User::create([
-            'name' => 'Budi Customer',
-            'email' => 'customer@gmail.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('password123'),
-            'phone' => '085712345678',
-            'role' => 'Customer',
-        ]);
+        $customer = User::firstOrCreate(
+            ['email' => 'customer@gmail.com'],
+            [
+                'name' => 'Budi Customer',
+                'email_verified_at' => now(),
+                'password' => Hash::make('password123'),
+                'phone' => '085712345678',
+                'role' => 'Customer',
+            ]
+        );
 
-        // 2. KATEGORI PRODUK
-        $categories = collect([
+        // 2. KATEGORI PRODUK - Gunakan firstOrCreate untuk hindari duplicate
+        $categoryData = [
             ['owner_id' => $admin->user_id, 'name' => 'Elektronik Admin', 'slug' => 'elektronik-admin'],
             ['owner_id' => $admin->user_id, 'name' => 'Fashion Admin', 'slug' => 'fashion-admin'],
             ['owner_id' => $admin->user_id, 'name' => 'Rumah Tangga Admin', 'slug' => 'rumah-tangga-admin'],
             ['owner_id' => $seller->user_id, 'name' => 'Elektronik Seller', 'slug' => 'elektronik-seller'],
             ['owner_id' => $seller->user_id, 'name' => 'Fashion Seller', 'slug' => 'fashion-seller'],
             ['owner_id' => $seller->user_id, 'name' => 'Kebutuhan Harian Seller', 'slug' => 'kebutuhan-harian-seller'],
-        ])->mapWithKeys(function (array $category) {
-            $createdCategory = Category::create($category);
+        ];
 
-            return [$category['slug'] => $createdCategory->category_id];
-        });
+        $categories = collect();
+        foreach ($categoryData as $cat) {
+            $category = Category::firstOrCreate(
+                ['slug' => $cat['slug']],
+                $cat
+            );
+            $categories->put($cat['slug'], $category->category_id);
+        }
 
         // 3. PRODUK CONTOH DENGAN GAMBAR DARI storage/app/public/products
         $products = [
@@ -139,15 +150,18 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($products as $product) {
-            Product::create([
-                'seller_id' => $seller->user_id,
-                'category_id' => $categories[$product['category']],
-                'product_name' => $product['product_name'],
-                'price' => $product['price'],
-                'stock' => $product['stock'],
-                'description' => $product['description'],
-                'image' => $product['image'],
-            ]);
+            Product::firstOrCreate(
+                ['product_name' => $product['product_name']],
+                [
+                    'seller_id' => $seller->user_id,
+                    'category_id' => $categories[$product['category']],
+                    'product_name' => $product['product_name'],
+                    'price' => $product['price'],
+                    'stock' => $product['stock'],
+                    'description' => $product['description'],
+                    'image' => $product['image'],
+                ]
+            );
         }
 
         $adminProducts = [
@@ -159,15 +173,21 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($adminProducts as $product) {
-            Product::create([
-                'seller_id' => $admin->user_id,
-                'category_id' => $categories[$product['category']],
-                'product_name' => $product['product_name'],
-                'price' => $product['price'],
-                'stock' => $product['stock'],
-                'description' => $product['description'],
-                'image' => $product['image'],
-            ]);
+            Product::firstOrCreate(
+                ['product_name' => $product['product_name']],
+                [
+                    'seller_id' => $admin->user_id,
+                    'category_id' => $categories[$product['category']],
+                    'product_name' => $product['product_name'],
+                    'price' => $product['price'],
+                    'stock' => $product['stock'],
+                    'description' => $product['description'],
+                    'image' => $product['image'],
+                ]
+            );
         }
+
+        // 4. SHIPPING COSTS (Ongkir RajaOngkir)
+        $this->call(ShippingCostSeeder::class);
     }
 }

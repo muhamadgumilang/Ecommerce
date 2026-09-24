@@ -7,6 +7,7 @@ use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Checkout;
+use App\Models\ShippingCost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -38,7 +39,24 @@ class OrderController extends Controller
             return (int) round((float) $item->product->price) * (int) $item->quantity;
         });
 
-        return view('checkout.index', compact('cart', 'subtotal'));
+        // Ambil data ongkir yang tersedia (dari database shipping_costs)
+        // Struktur: [courier][destination][service] = {cost, description}
+        $shippingCosts = ShippingCost::where('origin', '1') // Surabaya sebagai origin default
+            ->get()
+            ->groupBy(['courier', 'destination'])
+            ->map(function ($destinationGroup) {
+                return $destinationGroup->groupBy('service')->map(function ($serviceGroup) {
+                    return $serviceGroup->first()->only(['cost', 'description']);
+                });
+            });
+
+        // Daftar kota tujuan unik
+        $destinations = ShippingCost::where('origin', '1')
+            ->select('destination')
+            ->distinct()
+            ->get();
+
+        return view('checkout.index', compact('cart', 'subtotal', 'shippingCosts', 'destinations'));
     }
 
     public function show(Order $order)
@@ -67,10 +85,25 @@ class OrderController extends Controller
         $fields = $request->validate([
             'shipping_address' => 'required|string',
             'notes' => 'nullable|string',
+            'courier' => 'nullable|string',
+            'service' => 'nullable|string',
+            'destination' => 'nullable|string',
         ]);
 
-        $shippingMethod = 'Pengiriman standar';
+        // Hitung ongkir berdasarkan pilihan
+        $shippingMethod = $request->input('courier', 'Pengiriman Standar');
         $shippingFee = 0;
+        
+        if ($request->courier && $request->service && $request->destination) {
+            $shipping = ShippingCost::where('courier', $request->courier)
+                ->where('service', $request->service)
+                ->where('destination', $request->destination)
+                ->first();
+            if ($shipping) {
+                $shippingFee = $shipping->cost;
+                $shippingMethod = $shipping->courier_label . ' - ' . $shipping->description;
+            }
+        }
 
         $user = Auth::user();
         $cart = Cart::where('customer_id', $user->user_id)->with('cartItems.product')->first();
