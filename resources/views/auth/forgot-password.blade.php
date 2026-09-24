@@ -87,15 +87,18 @@
                         <p class="text-xs uppercase tracking-[0.2em] text-blue-100">Tips keamanan</p>
                         <div class="mt-4 space-y-4 text-sm text-blue-50">
                             <div class="flex items-center gap-3">
-                                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-lg">✓</span>
+                                <span
+                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-lg">✓</span>
                                 <span>Gunakan password yang unik dan kuat</span>
                             </div>
                             <div class="flex items-center gap-3">
-                                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-lg">✓</span>
+                                <span
+                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-lg">✓</span>
                                 <span>Jangan bagikan ke akun lain</span>
                             </div>
                             <div class="flex items-center gap-3">
-                                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-lg">✓</span>
+                                <span
+                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-lg">✓</span>
                                 <span>Perbarui password secara berkala</span>
                             </div>
                         </div>

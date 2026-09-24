@@ -8,11 +8,12 @@
     <button type="button" @click="open = !open"
         class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white p-1.5 shadow-sm transition hover:border-blue-200 hover:shadow-md hover:text-blue-600"
         :aria-expanded="open.toString()" aria-haspopup="true" aria-label="Profil pengguna">
-        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-semibold text-white shadow-sm">
+        <span
+            class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-semibold text-white shadow-sm">
             {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
         </span>
-        <svg class="ml-1.5 h-4 w-4 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor"
-            viewBox="0 0 24 24" aria-hidden="true">
+        <svg class="ml-1.5 h-4 w-4 transition-transform" :class="{ 'rotate-180': open }" fill="none"
+            stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6" />
         </svg>
     </button>
@@ -21,7 +22,8 @@
         class="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-xl shadow-slate-900/10"
         role="menu">
         <div class="flex items-center gap-3 border-b border-slate-100 px-2 pb-3 pt-1">
-            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-semibold text-white">
+            <span
+                class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-semibold text-white">
                 {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
             </span>
             <div class="min-w-0">

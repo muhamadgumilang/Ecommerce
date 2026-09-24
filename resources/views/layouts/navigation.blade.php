@@ -59,7 +59,8 @@
                     <x-slot name="trigger">
                         <button
                             class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1.5 text-sm font-medium text-gray-600 shadow-sm transition hover:border-blue-200 hover:text-gray-800 focus:outline-none">
-                            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-xs font-semibold text-white">
+                            <span
+                                class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-xs font-semibold text-white">
                                 {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                             </span>
                             <span>{{ Auth::user()->name }}</span>

@@ -107,15 +107,18 @@
                         <p class="text-xs uppercase tracking-[0.2em] text-blue-100">Tips aman</p>
                         <div class="mt-4 space-y-4 text-sm text-blue-50">
                             <div class="flex items-center gap-3">
-                                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-lg">✓</span>
+                                <span
+                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-lg">✓</span>
                                 <span>Gunakan kombinasi huruf, angka, dan simbol</span>
                             </div>
                             <div class="flex items-center gap-3">
-                                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-lg">✓</span>
+                                <span
+                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-lg">✓</span>
                                 <span>Jangan gunakan password yang sama seperti akun lain</span>
                             </div>
                             <div class="flex items-center gap-3">
-                                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-lg">✓</span>
+                                <span
+                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-lg">✓</span>
                                 <span>Pastikan password mudah diingat namun sulit ditebak</span>
                             </div>
                         </div>
