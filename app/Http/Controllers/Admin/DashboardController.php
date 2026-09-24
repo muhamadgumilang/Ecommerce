@@ -4,16 +4,19 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\OrderDetail;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
     public function index(): View
     {
-        $totalProducts = Product::count();
+        $adminId = Auth::id();
+        $totalProducts = Product::where('seller_id', $adminId)->count();
         $totalUsers = User::count();
         $totalSellers = User::where('role', 'Seller')->count();
         $totalCustomers = User::where('role', 'Customer')->count();
@@ -30,9 +33,28 @@ class DashboardController extends Controller
             ->take(6)
             ->get();
         $lowStockProducts = Product::with('seller')
+            ->where('seller_id', $adminId)
             ->where('stock', '<=', 5)
             ->orderBy('stock')
             ->take(6)
+            ->get();
+        $monthlySales = collect(range(5, 0))->map(function (int $monthsAgo) {
+            $month = now()->subMonths($monthsAgo);
+
+            return [
+                'label' => $month->translatedFormat('M Y'),
+                'total' => (float) Order::whereHas('payment', fn ($query) => $query->where('payment_status', 'Verified'))
+                    ->whereBetween('order_date', [$month->copy()->startOfMonth(), $month->copy()->endOfMonth()])
+                    ->sum('total_amount'),
+            ];
+        });
+        $topProducts = OrderDetail::with('product')
+            ->whereHas('order.payment', fn ($query) => $query->where('payment_status', 'Verified'))
+            ->select('product_id')
+            ->selectRaw('SUM(quantity) as total_quantity, SUM(subtotal) as total_sales')
+            ->groupBy('product_id')
+            ->orderByDesc('total_quantity')
+            ->take(5)
             ->get();
 
         return view('admin.dashboard', compact(
@@ -45,7 +67,9 @@ class DashboardController extends Controller
             'verifiedRevenue',
             'statusCounts',
             'recentOrders',
-            'lowStockProducts'
+            'lowStockProducts',
+            'monthlySales',
+            'topProducts'
         ));
     }
 }

@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
-use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\CartController;
@@ -10,12 +10,15 @@ use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\OrderController as UserOrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\Admin\DashboardController; // Pastikan controller ini di-import
 use App\Http\Controllers\Seller\DashboardController as SellerDashboardController;
+use App\Http\Controllers\Seller\CategoryController as SellerCategoryController;
 use App\Http\Controllers\Seller\ProductController as SellerProductController;
 use App\Http\Controllers\Seller\OrderController as SellerOrderController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // Halaman Utama (Landing Page) - Mengambil data produk via HomeController
@@ -26,7 +29,7 @@ Route::apiResource('catalog', CatalogController::class)->only(['index', 'show'])
 
 // Route Dashboard Cerdas Redirect Sesuai Role
 Route::get('/dashboard', function () {
-    $user = auth()->user();
+    $user = Auth::user();
     if ($user->isAdmin()) {
         return redirect()->route('admin.dashboard');
     }
@@ -36,13 +39,13 @@ Route::get('/dashboard', function () {
     return redirect()->route('home');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Route Manajemen Admin (Dashboard, Kategori, Produk, Pesanan Admin)
+// Route Manajemen Admin (Dashboard, Kategori, Keuangan, dan Pesanan Admin)
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     // Diubah dari Route::view menjadi pemanggilan DashboardController@index
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('categories', CategoryController::class);
-    Route::resource('products', ProductController::class);
+    Route::resource('products', AdminProductController::class);
     Route::apiResource('catalogs', CatalogController::class)->except(['index', 'show']);
     Route::resource('orders', AdminOrderController::class)->except(['create', 'store']);
     Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
@@ -53,6 +56,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 // Route Manajemen Seller (Dashboard Toko, Produk Toko, Pesanan Masuk Toko)
 Route::middleware(['auth', 'verified', 'seller'])->prefix('seller')->name('seller.')->group(function () {
     Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
+    Route::resource('categories', SellerCategoryController::class)->except(['show']);
     Route::resource('products', SellerProductController::class)->except(['show']);
     Route::get('/orders', [SellerOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [SellerOrderController::class, 'show'])->name('orders.show');
@@ -78,8 +82,14 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/orders', [UserOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [UserOrderController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{order}/cancel', [UserOrderController::class, 'cancel'])->name('orders.cancel');
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/{product}', [WishlistController::class, 'store'])->name('wishlist.store');
+    Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
+    Route::get('/orders/{order}/payment-status', [UserOrderController::class, 'paymentStatus'])->name('orders.payment-status');
     Route::get('/orders/{order}/payment', [PaymentController::class, 'create'])->name('payments.create');
     Route::post('/orders/{order}/payment', [PaymentController::class, 'store'])->name('payments.store');
+    Route::post('/orders/{order}/payment/sync', [PaymentController::class, 'sync'])->name('payments.sync');
 });
 
 // Memuat route bawaan Laravel Breeze (Login, Register, Logout, dll)

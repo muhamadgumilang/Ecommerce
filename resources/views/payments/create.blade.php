@@ -44,6 +44,8 @@
                     Pesanan Saya
                 </a>
                 <x-cart-link />
+                <x-notification-menu />
+                <x-wishlist-link />
 
                 @auth
                     @if (Auth::user()->isAdmin())
@@ -249,6 +251,7 @@
                                 </svg>
                                 <span>Bayar dengan Midtrans</span>
                             </button>
+                            <p id="payment-message" class="hidden rounded-xl bg-amber-50 px-3 py-2 text-center text-xs text-amber-700"></p>
 
                             <a href="{{ route('orders.show', $order) }}"
                                 class="w-full inline-flex items-center justify-center rounded-xl bg-slate-100 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-200 transition">
@@ -299,32 +302,126 @@
     document.addEventListener('DOMContentLoaded', function() {
         const payButton = document.getElementById('pay-button');
         const snapToken = @json($payment->snap_token);
+        const statusUrl = @json(route('orders.payment-status', $order));
+        const syncUrl = @json(route('payments.sync', $order));
+        const orderUrl = @json(route('orders.show', $order));
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        const paymentMessage = document.getElementById('payment-message');
+
+        function setPaymentMessage(message, type = 'warning') {
+            paymentMessage.textContent = message;
+            paymentMessage.className = type === 'error'
+                ? 'rounded-xl bg-rose-50 px-3 py-2 text-center text-xs text-rose-700'
+                : 'rounded-xl bg-amber-50 px-3 py-2 text-center text-xs text-amber-700';
+        }
+
+        function resetPayButton() {
+            payButton.disabled = false;
+            payButton.classList.remove('opacity-70', 'cursor-wait');
+            payButton.querySelector('span').textContent = 'Bayar dengan Midtrans';
+        }
+
+        async function syncPayment(result) {
+            if (!result?.order_id) {
+                return false;
+            }
+
+            try {
+                const response = await fetch(syncUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ order_id: result.order_id })
+                });
+
+                return response.ok;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        function waitForPaymentConfirmation() {
+            let attempts = 0;
+            const maxAttempts = 8;
+            setPaymentMessage('Pembayaran sedang dikonfirmasi. Jangan tutup halaman ini.');
+            const interval = window.setInterval(async function() {
+                attempts++;
+
+                try {
+                    const response = await fetch(statusUrl, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    const status = await response.json();
+
+                    if (status.payment_status === 'Verified') {
+                        window.clearInterval(interval);
+                        setPaymentMessage('Pembayaran berhasil. Mengalihkan ke detail pesanan...');
+                        window.location.href = orderUrl;
+                    } else if (status.payment_status === 'Failed') {
+                        window.clearInterval(interval);
+                        resetPayButton();
+                        setPaymentMessage('Pembayaran gagal. Silakan coba lagi.', 'error');
+                    } else if (attempts >= maxAttempts) {
+                        window.clearInterval(interval);
+                        resetPayButton();
+                        setPaymentMessage('Pembayaran belum terkonfirmasi. Periksa kembali beberapa saat lagi.');
+                    }
+                } catch (error) {
+                    if (attempts >= maxAttempts) {
+                        window.clearInterval(interval);
+                        resetPayButton();
+                        setPaymentMessage('Status pembayaran belum dapat diperiksa. Silakan buka ulang halaman ini.', 'error');
+                    }
+                }
+            }, 2000);
+        }
 
         payButton.addEventListener('click', function() {
-            if (!snapToken || !window.snap) {
-                window.alert(
-                    'Pembayaran belum siap. Silakan muat ulang halaman atau coba beberapa saat lagi.'
-                    );
+            if (!snapToken) {
+                setPaymentMessage('Token pembayaran tidak tersedia. Muat ulang halaman dan coba lagi.', 'error');
+                return;
+            }
+
+            if (!window.snap || typeof window.snap.pay !== 'function') {
+                setPaymentMessage('Layanan Midtrans belum selesai dimuat. Periksa koneksi internet lalu coba lagi.', 'error');
                 return;
             }
 
             payButton.disabled = true;
             payButton.classList.add('opacity-70', 'cursor-wait');
-            window.snap.pay(snapToken, {
-                onSuccess: function() {
-                    window.location.href = @json(route('orders.show', $order));
-                },
-                onPending: function() {
-                    window.location.href = @json(route('orders.show', $order));
-                },
-                onError: function() {
-                    window.location.reload();
-                },
-                onClose: function() {
-                    payButton.disabled = false;
-                    payButton.classList.remove('opacity-70', 'cursor-wait');
-                }
-            });
+            payButton.querySelector('span').textContent = 'Membuka pembayaran...';
+            paymentMessage.classList.add('hidden');
+
+            try {
+                window.snap.pay(snapToken, {
+                    onSuccess: async function(result) {
+                        await syncPayment(result);
+                        waitForPaymentConfirmation();
+                    },
+                    onPending: async function(result) {
+                        await syncPayment(result);
+                        waitForPaymentConfirmation();
+                    },
+                    onError: function() {
+                        resetPayButton();
+                        setPaymentMessage('Midtrans gagal memproses pembayaran. Silakan coba lagi.', 'error');
+                    },
+                    onClose: function() {
+                        resetPayButton();
+                        setPaymentMessage('Pembayaran dibatalkan. Anda dapat mencoba lagi.');
+                    }
+                });
+            } catch (error) {
+                resetPayButton();
+                setPaymentMessage('Popup pembayaran tidak dapat dibuka. Nonaktifkan pemblokir popup lalu coba lagi.', 'error');
+            }
         });
     });
 </script>

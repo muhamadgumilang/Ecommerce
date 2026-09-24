@@ -7,10 +7,12 @@ use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Checkout;
+use App\Models\ShippingCost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class OrderController extends Controller
 {
@@ -37,7 +39,24 @@ class OrderController extends Controller
             return (int) round((float) $item->product->price) * (int) $item->quantity;
         });
 
-        return view('checkout.index', compact('cart', 'subtotal'));
+        // Ambil data ongkir yang tersedia (dari database shipping_costs)
+        // Struktur: [courier][destination][service] = {cost, description}
+        $shippingCosts = ShippingCost::where('origin', '1') // Surabaya sebagai origin default
+            ->get()
+            ->groupBy(['courier', 'destination'])
+            ->map(function ($destinationGroup) {
+                return $destinationGroup->groupBy('service')->map(function ($serviceGroup) {
+                    return $serviceGroup->first()->only(['cost', 'description']);
+                });
+            });
+
+        // Daftar kota tujuan unik
+        $destinations = ShippingCost::where('origin', '1')
+            ->select('destination')
+            ->distinct()
+            ->get();
+
+        return view('checkout.index', compact('cart', 'subtotal', 'shippingCosts', 'destinations'));
     }
 
     public function show(Order $order)
@@ -49,15 +68,42 @@ class OrderController extends Controller
         return view('orders.show', compact('order'));
     }
 
+    public function paymentStatus(Order $order): JsonResponse
+    {
+        abort_unless(Auth::id() === $order->customer_id, 403, 'Anda tidak berhak melihat status pembayaran order ini.');
+
+        $order->load('payment');
+
+        return response()->json([
+            'payment_status' => $order->payment?->payment_status ?? 'Pending',
+            'order_status' => $order->order_status,
+        ]);
+    }
+
     public function processCheckout(Request $request)
     {
         $fields = $request->validate([
             'shipping_address' => 'required|string',
             'notes' => 'nullable|string',
+            'courier' => 'nullable|string',
+            'service' => 'nullable|string',
+            'destination' => 'nullable|string',
         ]);
 
-        $shippingMethod = 'Pengiriman standar';
+        // Hitung ongkir berdasarkan pilihan
+        $shippingMethod = $request->input('courier', 'Pengiriman Standar');
         $shippingFee = 0;
+        
+        if ($request->courier && $request->service && $request->destination) {
+            $shipping = ShippingCost::where('courier', $request->courier)
+                ->where('service', $request->service)
+                ->where('destination', $request->destination)
+                ->first();
+            if ($shipping) {
+                $shippingFee = $shipping->cost;
+                $shippingMethod = $shipping->courier_label . ' - ' . $shipping->description;
+            }
+        }
 
         $user = Auth::user();
         $cart = Cart::where('customer_id', $user->user_id)->with('cartItems.product')->first();
@@ -143,4 +189,25 @@ class OrderController extends Controller
 
         return view('orders.index', compact('orders'));
     }
+
+    public function cancel(Order $order)
+    {
+        abort_unless(Auth::id() === $order->customer_id, 403, 'Anda tidak berhak membatalkan order ini.');
+        abort_unless($order->order_status === 'Pending Payment', 422, 'Pesanan yang sudah diproses tidak dapat dibatalkan.');
+
+        $order->load(['orderDetails.product', 'payment']);
+
+        DB::transaction(function () use ($order): void {
+            if (! $order->payment?->stock_released) {
+                foreach ($order->orderDetails as $detail) {
+                    $detail->product()->lockForUpdate()->first()?->increment('stock', $detail->quantity);
+                }
+            }
+
+            $order->update(['order_status' => 'Cancelled']);
+        });
+
+        return redirect()->route('orders.show', $order)->with('success', 'Pesanan berhasil dibatalkan.');
+    }
+
 }

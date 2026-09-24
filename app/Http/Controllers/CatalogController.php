@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Catalog;
+use App\Models\Category;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View; // Tambahkan namespace View
@@ -11,15 +12,43 @@ use Illuminate\View\View; // Tambahkan namespace View
 class CatalogController extends Controller
 {
     // Ubah return type menjadi View atau gabungkan jika masih dipakai untuk API
-    public function index(): View
+    public function index(Request $request): View
     {
-        // Mengambil data dari tabel products
+        $search = trim((string) $request->query('search', ''));
+        $categoryFilter = trim((string) $request->query('category', ''));
+        $categoryIds = collect(explode(',', $categoryFilter))
+            ->filter(fn ($id) => ctype_digit($id) && (int) $id > 0)
+            ->map(fn ($id) => (int) $id)
+            ->values();
+        $minPrice = is_numeric($request->query('min_price')) ? max(0, (float) $request->query('min_price')) : null;
+        $maxPrice = is_numeric($request->query('max_price')) ? max(0, (float) $request->query('max_price')) : null;
+
         $products = Product::query()
             ->with(['category', 'seller'])
+            ->when($categoryIds->isNotEmpty(), fn ($query) => $query->whereIn('category_id', $categoryIds))
+            ->when($minPrice !== null, fn ($query) => $query->where('price', '>=', $minPrice))
+            ->when($maxPrice !== null, fn ($query) => $query->where('price', '<=', $maxPrice))
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('product_name', 'like', "%{$search}%")
+                        ->orWhereHas('category', function ($query) use ($search) {
+                            $query->where('name', 'like', "%{$search}%");
+                        });
+                });
+            })
             ->latest()
-            ->paginate(12);
+            ->paginate(12)
+            ->withQueryString();
 
-        return view('catalog.index', compact('products'));
+        $categories = Category::orderBy('name')->get()
+            ->groupBy(fn ($category) => preg_replace('/\s+(Admin|Seller)$/i', '', $category->name))
+            ->map(fn ($group, $name) => (object) [
+                'name' => $name,
+                'ids' => $group->pluck('category_id')->implode(','),
+            ])
+            ->values();
+
+        return view('catalog.index', compact('products', 'search', 'categories', 'categoryFilter', 'minPrice', 'maxPrice'));
     }
 
     // Method lainnya tetap sama...

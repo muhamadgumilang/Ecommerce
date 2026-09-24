@@ -13,8 +13,13 @@ class Category extends Model
 
     // ✅ Tambahkan 'slug' ke fillable
     protected $fillable = [
+        'owner_id',
         'name',
         'slug',
+    ];
+
+    protected $casts = [
+        'owner_id' => 'integer',
     ];
 
     public function getRouteKeyName()
@@ -25,5 +30,10 @@ class Category extends Model
     public function products()
     {
         return $this->hasMany(Product::class, 'category_id', 'category_id');
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner_id', 'user_id');
     }
 }

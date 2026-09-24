@@ -41,6 +41,8 @@
                     Pesanan Saya
                 </a>
                 <x-cart-link />
+                <x-notification-menu />
+                <x-wishlist-link />
 
                 @auth
                     @if (Auth::user()->isAdmin())
@@ -133,6 +135,17 @@
                             'Completed' => 'Pesanan Selesai',
                             'Cancelled' => 'Dibatalkan',
                         ];
+                        $paymentLabels = [
+                            'Pending' => 'Pembayaran belum dikonfirmasi',
+                            'Verified' => 'Pembayaran berhasil',
+                            'Failed' => 'Pembayaran gagal',
+                        ];
+                        $paymentStyles = [
+                            'Pending' => 'text-amber-700 bg-amber-50',
+                            'Verified' => 'text-emerald-700 bg-emerald-50',
+                            'Failed' => 'text-rose-700 bg-rose-50',
+                        ];
+                        $paymentStatus = $order->payment?->payment_status ?? 'Pending';
                     @endphp
                     <div
                         class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm hover:shadow transition">
@@ -196,6 +209,9 @@
                                 <span class="text-base font-bold text-blue-600 ml-1">
                                     Rp {{ number_format($order->total_amount, 0, ',', '.') }}
                                 </span>
+                                <span class="block mt-1 text-xs font-semibold {{ $paymentStyles[$paymentStatus] ?? 'text-slate-600 bg-slate-50' }} rounded-full px-2 py-1 w-fit">
+                                    {{ $paymentLabels[$paymentStatus] ?? $paymentStatus }}
+                                </span>
                             </div>
 
                             <div class="flex items-center gap-2">
@@ -204,6 +220,17 @@
                                         class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition shadow-sm shadow-blue-600/20">
                                         Bayar Sekarang
                                     </a>
+                                @endif
+                                @if ($order->order_status === 'Pending Payment')
+                                    <form action="{{ route('orders.cancel', $order) }}" method="POST"
+                                        onsubmit="return confirm('Batalkan pesanan ini? Stok akan dikembalikan.')">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit"
+                                            class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-semibold transition">
+                                            Batalkan
+                                        </button>
+                                    </form>
                                 @endif
                                 <a href="{{ route('orders.show', $order) }}"
                                     class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition">

@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::latest()->paginate(10);
+        $categories = Category::where('owner_id', Auth::id())->latest()->paginate(10);
         return view('admin.categories.index', compact('categories'));
     }
 
@@ -27,6 +28,7 @@ class CategoryController extends Controller
         ]);
 
         Category::create([
+            'owner_id' => $request->user()->user_id,
             'name' => $request->name,
             'slug' => Str::slug($request->name), // ✅ Otomatis buat slug (misal: "Sepatu Pria" -> "sepatu-pria")
         ]);
@@ -36,11 +38,13 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
+        abort_unless($category->owner_id === Auth::id(), 403);
         return view('admin.categories.edit', compact('category'));
     }
 
     public function update(Request $request, Category $category)
     {
+        abort_unless($category->owner_id === $request->user()->user_id, 403);
         $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $category->category_id . ',category_id',
         ]);
@@ -55,6 +59,7 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+        abort_unless($category->owner_id === Auth::id(), 403);
         try {
             // Loop semua produk di kategori ini, hapus data turunannya lalu hapus produknya
             foreach ($category->products as $product) {

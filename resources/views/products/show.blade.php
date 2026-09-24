@@ -44,6 +44,8 @@
                     aria-label="Keranjang">
                     &#128722;
                 </a>
+                <x-notification-menu />
+                <x-wishlist-link />
 
                 @auth
                     @if (Auth::user()->isAdmin())
@@ -176,6 +178,17 @@
                                 <span class="text-xs text-slate-400">&bull;</span>
                                 <span class="text-xs text-slate-500">ID Produk: #{{ $product->product_id }}</span>
                             </div>
+                            @auth
+                                @if (Auth::user()->isCustomer())
+                                    <form action="{{ route('wishlist.store', $product) }}" method="POST" class="mb-3">
+                                        @csrf
+                                        <button type="submit"
+                                            class="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-100">
+                                            <span class="text-base leading-none">♡</span> Simpan ke Wishlist
+                                        </button>
+                                    </form>
+                                @endif
+                            @endauth
 
                             <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight leading-tight">
                                 {{ $product->product_name }}
@@ -231,7 +244,7 @@
                                     </div>
                                     <div>
                                         <span class="text-[11px] text-slate-400 font-medium block">Dijual oleh Toko:</span>
-                                        <span class="text-sm font-bold text-slate-800">{{ $product->seller?->name ?? 'Zenthercraft Store' }}</span>
+                                        <span class="text-sm font-bold text-slate-800">{{ $product->seller?->name ?? 'E-Commerce' }}</span>
                                     </div>
                                 </div>
                                 <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">

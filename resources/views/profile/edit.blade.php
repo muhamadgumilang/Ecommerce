@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Profil Saya - {{ config('app.name', 'Zenthercraft') }}</title>
+    <title>Profil Saya - {{ config('app.name', 'E-Commerce') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -24,7 +24,7 @@
             <a href="{{ route('home') }}" class="font-bold text-lg text-slate-900 flex items-center gap-2 shrink-0">
                 <span
                     class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm shadow-blue-600/25">Z</span>
-                <span class="tracking-tight text-blue-600 font-bold">Zenthercraft</span>
+                <span class="tracking-tight text-blue-600 font-bold">E-Commerce</span>
             </a>
 
             <nav class="flex items-center gap-1 sm:gap-2 text-sm">
@@ -41,6 +41,8 @@
                     Pesanan Saya
                 </a>
                 <x-cart-link />
+                <x-notification-menu />
+                <x-wishlist-link />
 
                 @auth
                     @if (Auth::user()->isAdmin())
@@ -337,7 +339,7 @@
             <div class="flex items-center gap-2">
                 <span
                     class="w-6 h-6 rounded-lg bg-blue-600 text-white font-bold flex items-center justify-center text-xs">Z</span>
-                <span class="font-semibold text-slate-800">Zenthercraft</span>
+                <span class="font-semibold text-slate-800">E-Commerce</span>
                 <span>&copy; {{ date('Y') }} Hak Cipta Dilindungi.</span>
             </div>
             <div class="flex items-center gap-4">

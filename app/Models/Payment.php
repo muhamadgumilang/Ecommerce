@@ -19,6 +19,11 @@ class Payment extends Model
         'payment_method',
         'payment_status',
         'payment_date',
+        'stock_released',
+    ];
+
+    protected $casts = [
+        'stock_released' => 'boolean',
     ];
 
     public function order()

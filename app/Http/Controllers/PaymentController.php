@@ -6,9 +6,12 @@ use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Midtrans\Config;
 use Midtrans\Notification;
 use Midtrans\Snap;
+use Midtrans\Transaction;
 
 class PaymentController extends Controller
 {
@@ -17,12 +20,22 @@ class PaymentController extends Controller
         abort_unless(Auth::id() === $order->customer_id, 403, 'Anda tidak berhak mengakses pembayaran order ini.');
 
         $payment = $order->payment;
+        if ($payment?->payment_status === 'Verified') {
+            return redirect()->route('orders.show', $order)->with('success', 'Pembayaran pesanan ini sudah berhasil dikonfirmasi.');
+        }
+
         if ($payment && $payment->payment_status !== 'Failed' && filled($payment->snap_token)) {
             $order->load(['orderDetails.product', 'checkout', 'customer']);
             return view('payments.create', compact('order', 'payment'));
         }
 
         $order->load(['orderDetails.product', 'checkout', 'customer']);
+        if ($payment?->payment_status === 'Failed' && $payment->stock_released) {
+            $this->reserveOrderStock($order);
+            $payment->stock_released = false;
+            $payment->save();
+        }
+
         $this->configureMidtrans();
         abort_if($order->orderDetails->isEmpty(), 422, 'Order belum memiliki detail produk.');
 
@@ -83,6 +96,7 @@ class PaymentController extends Controller
             'payment_method' => 'Midtrans Snap',
             'payment_status' => 'Pending',
             'payment_date' => now(),
+            'stock_released' => false,
             'snap_token' => Snap::getSnapToken($params),
         ]);
         $payment->save();
@@ -95,6 +109,55 @@ class PaymentController extends Controller
         abort_unless(Auth::id() === $order->customer_id, 403, 'Anda tidak berhak melakukan pembayaran untuk order ini.');
 
         return redirect()->route('payments.create', $order);
+    }
+
+    public function sync(Request $request, Order $order)
+    {
+        abort_unless(Auth::id() === $order->customer_id, 403, 'Anda tidak berhak menyinkronkan pembayaran order ini.');
+
+        $validated = $request->validate([
+            'order_id' => ['required', 'string', 'regex:/^ORDER-' . $order->order_id . '-\d+$/'],
+        ]);
+
+        $this->configureMidtrans();
+        $transaction = Transaction::status($validated['order_id']);
+        $transactionStatus = (string) ($transaction->transaction_status ?? 'pending');
+
+        $paymentStatus = match ($transactionStatus) {
+            'capture', 'settlement' => 'Verified',
+            'deny', 'cancel', 'expire', 'failure' => 'Failed',
+            default => 'Pending',
+        };
+
+        $order->load(['orderDetails.product', 'payment']);
+        $payment = $order->payment;
+        $wasAlreadyFailed = $payment?->payment_status === 'Failed' && $payment->stock_released;
+
+        if ($paymentStatus === 'Failed' && ! $wasAlreadyFailed) {
+            $this->releaseOrderStock($order);
+        }
+
+        $order->payment()->updateOrCreate(
+            ['order_id' => $order->order_id],
+            [
+                'transaction_id' => $transaction->transaction_id ?? null,
+                'payment_method' => $transaction->payment_type ?? 'Midtrans Snap',
+                'payment_status' => $paymentStatus,
+                'payment_date' => now(),
+                'stock_released' => $paymentStatus === 'Failed',
+            ]
+        );
+
+        if ($paymentStatus === 'Verified') {
+            $order->update(['order_status' => 'Processing']);
+        } elseif ($paymentStatus === 'Failed') {
+            $order->update(['order_status' => 'Pending Payment']);
+        }
+
+        return response()->json([
+            'payment_status' => $paymentStatus,
+            'order_status' => $order->fresh()->order_status,
+        ]);
     }
 
     public function notification(Request $request)
@@ -120,6 +183,13 @@ class PaymentController extends Controller
             default => 'Pending',
         };
 
+        $payment = $order->payment;
+        $wasAlreadyFailed = $payment?->payment_status === 'Failed' && $payment->stock_released;
+
+        if ($status === 'Failed' && ! $wasAlreadyFailed) {
+            $this->releaseOrderStock($order);
+        }
+
         $order->payment()->updateOrCreate(
             ['order_id' => $order->order_id],
             [
@@ -127,6 +197,7 @@ class PaymentController extends Controller
                 'payment_method' => $notification->payment_type ?? 'Midtrans Snap',
                 'payment_status' => $status,
                 'payment_date' => now(),
+                'stock_released' => $status === 'Failed',
             ]
         );
 
@@ -148,5 +219,31 @@ class PaymentController extends Controller
         Config::$isProduction = (bool) config('services.midtrans.is_production');
         Config::$isSanitized = (bool) config('services.midtrans.is_sanitized');
         Config::$is3ds = (bool) config('services.midtrans.is_3ds');
+    }
+
+    private function reserveOrderStock(Order $order): void
+    {
+        DB::transaction(function () use ($order): void {
+            foreach ($order->orderDetails as $detail) {
+                $product = $detail->product()->lockForUpdate()->first();
+
+                if (! $product || $detail->quantity > $product->stock) {
+                    throw ValidationException::withMessages([
+                        'stock' => "Stok produk " . ($product?->product_name ?? 'yang dipilih') . ' tidak mencukupi untuk pembayaran ulang.',
+                    ]);
+                }
+
+                $product->decrement('stock', $detail->quantity);
+            }
+        });
+    }
+
+    private function releaseOrderStock(Order $order): void
+    {
+        DB::transaction(function () use ($order): void {
+            foreach ($order->orderDetails as $detail) {
+                $detail->product()->lockForUpdate()->first()?->increment('stock', $detail->quantity);
+            }
+        });
     }
 }

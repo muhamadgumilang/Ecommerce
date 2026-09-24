@@ -78,6 +78,11 @@
                             </svg>
                             <span class="text-sm font-medium">Lihat Katalog</span>
                         </a>
+                        <a href="{{ route('seller.categories.index') }}"
+                            class="group flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 {{ request()->routeIs('seller.categories.*') ? 'bg-gradient-to-r from-blue-500 to-sky-400 text-white shadow-lg shadow-blue-200' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-700' }}">
+                            <span class="w-5 h-5 mr-3 text-center">🏷️</span>
+                            <span class="text-sm font-medium">Kategori Saya</span>
+                        </a>
                     @else
                         <!-- Dashboard -->
                         <a href="{{ route('admin.dashboard') }}"
@@ -103,15 +108,11 @@
                             <span class="text-sm font-medium">Kategori</span>
                         </a>
 
-                        <!-- Produk -->
+                        <!-- Pesanan / Order -->
                         <a href="{{ route('admin.products.index') }}"
                             class="group flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.products.*') ? 'bg-gradient-to-r from-blue-500 to-sky-400 text-white shadow-lg shadow-blue-200' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-700' }}">
-                            <svg class="w-5 h-5 mr-3 {{ request()->routeIs('admin.products.*') ? 'text-white' : 'text-blue-400 group-hover:text-blue-600' }}"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                            </svg>
-                            <span class="text-sm font-medium">Produk</span>
+                            <span class="w-5 h-5 mr-3 text-center">📦</span>
+                            <span class="text-sm font-medium">Produk Admin</span>
                         </a>
 
                         <!-- Pesanan / Order -->
@@ -193,8 +194,11 @@
         <div class="flex flex-1 flex-col overflow-hidden">
             @isset($header)
                 <header class="border-b border-slate-200/80 bg-white/80 shadow-sm backdrop-blur-xl">
-                    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                        {{ $header }}
+                    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-6 sm:px-6 lg:px-8">
+                        <div class="min-w-0 flex-1">
+                            {{ $header }}
+                        </div>
+                        <x-notification-menu />
                     </div>
                 </header>
             @endisset

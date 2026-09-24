@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
@@ -24,12 +25,14 @@ class ProductController extends Controller
 
     public function create()
     {
-        $categories = Category::all();
+        $categories = Category::where('owner_id', Auth::id())->get();
         return view('seller.products.create', compact('categories'));
     }
 
     public function store(Request $request)
     {
+        abort_unless(Category::where('category_id', $request->integer('category_id'))
+            ->where('owner_id', $request->user()->user_id)->exists(), 422, 'Kategori bukan milik Seller ini.');
         $request->validate([
             'category_id' => 'required|exists:categories,category_id',
             'product_name' => 'required|string|max:150',
@@ -60,19 +63,22 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         // Pastikan hanya pemilik produk yang dapat mengubah
-        if ($product->seller_id !== auth()->id()) {
+        if ($product->seller_id !== Auth::id()) {
             abort(403, 'Akses ditolak. Anda bukan pemilik produk ini.');
         }
 
-        $categories = Category::all();
+        $categories = Category::where('owner_id', Auth::id())->get();
         return view('seller.products.edit', compact('product', 'categories'));
     }
 
     public function update(Request $request, Product $product)
     {
-        if ($product->seller_id !== auth()->id()) {
+        if ($product->seller_id !== Auth::id()) {
             abort(403, 'Akses ditolak. Anda bukan pemilik produk ini.');
         }
+
+        abort_unless(Category::where('category_id', $request->integer('category_id'))
+            ->where('owner_id', $request->user()->user_id)->exists(), 422, 'Kategori bukan milik Seller ini.');
 
         $request->validate([
             'category_id' => 'required|exists:categories,category_id',
@@ -106,7 +112,7 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        if ($product->seller_id !== auth()->id()) {
+        if ($product->seller_id !== Auth::id()) {
             abort(403, 'Akses ditolak. Anda bukan pemilik produk ini.');
         }
 

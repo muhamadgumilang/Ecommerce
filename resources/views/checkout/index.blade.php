@@ -41,6 +41,8 @@
                     Pesanan Saya
                 </a>
                 <x-cart-link />
+                <x-notification-menu />
+                <x-wishlist-link />
 
                 @auth
                     @if (Auth::user()->isAdmin())
@@ -154,7 +156,7 @@
                                 <span class="text-slate-400 block font-medium">Metode Kurir</span>
                                 <span class="inline-flex items-center gap-1 font-semibold text-emerald-600 mt-0.5">
                                     <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
-                                    Pengiriman Standar (Gratis)
+                                    Pilihan Ongkir
                                 </span>
                             </div>
                         </div>
@@ -163,6 +165,48 @@
                         <form id="checkout-form" method="POST" action="{{ route('checkout.process') }}"
                             class="space-y-4">
                             @csrf
+
+                            <!-- Pilihan Ongkir -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label for="courier" class="block text-sm font-semibold text-slate-800 mb-1.5">
+                                        Kurir <span class="text-rose-500">*</span>
+                                    </label>
+                                    <select id="courier" name="courier" required
+                                        class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                        <option value="">-- Pilih Kurir --</option>
+                                        <option value="jne">JNE</option>
+                                        <option value="tiki">TIKI</option>
+                                        <option value="pos">POS Indonesia</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label for="service" class="block text-sm font-semibold text-slate-800 mb-1.5">
+                                        Layanan <span class="text-rose-500">*</span>
+                                    </label>
+                                    <select id="service" name="service" required
+                                        class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                        <option value="">-- Pilih Layanan --</option>
+                                        <option value="REG">REG (Reguler)</option>
+                                        <option value="YES">YES (Same Day)</option>
+                                        <option value="OKE">OKE (Ekonomi)</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label for="destination" class="block text-sm font-semibold text-slate-800 mb-1.5">
+                                        Tujuan <span class="text-rose-500">*</span>
+                                    </label>
+                                    <select id="destination" name="destination" required
+                                        class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                        <option value="">-- Pilih Tujuan --</option>
+                                        <option value="531">Jakarta Pusat</option>
+                                        <option value="113">Jakarta Timur</option>
+                                        <option value="153">Jakarta Barat</option>
+                                    </select>
+                                </div>
+                            </div>
 
                             <div>
                                 <label for="shipping_address" class="block text-sm font-semibold text-slate-800 mb-1.5">
@@ -255,14 +299,16 @@
                             </div>
 
                             <div class="flex justify-between text-slate-600">
-                                <span>Pengiriman Standar</span>
-                                <span class="font-semibold text-emerald-600">Gratis</span>
+                                <span>Ongkir</span>
+                                <span class="font-semibold text-emerald-600" id="shipping-fee-display">
+                                    Rp 0
+                                </span>
                             </div>
 
                             <div
                                 class="border-t border-slate-200 pt-3 mt-3 flex justify-between items-center text-base">
                                 <span class="font-bold text-slate-900">Total Pembayaran</span>
-                                <span class="font-bold text-xl text-blue-600">
+                                <span class="font-bold text-xl text-blue-600" id="total-payment">
                                     Rp {{ number_format($subtotal, 0, ',', '.') }}
                                 </span>
                             </div>
@@ -318,11 +364,51 @@
         </div>
     </main>
 
-    <!-- Footer -->
+<!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
         &copy; {{ date('Y') }} E-Commerce. All rights reserved.
     </footer>
 
-</body>
+    <script>
+        // Data ongkir dari database (dikirim dari controller)
+        const shippingCosts = @json($shippingCosts ?? []);
 
+        function calculateShipping() {
+            const courier = document.getElementById('courier').value;
+            const service = document.getElementById('service').value;
+            const destination = document.getElementById('destination').value;
+
+            if (!courier || !service || !destination) {
+                document.getElementById('shipping-fee-display').textContent = 'Rp 0';
+                updateTotal(0);
+                return;
+            }
+
+            // Cari ongkir yang sesuai
+            let foundCost = 0;
+            if (shippingCosts[courier] && shippingCosts[courier][destination]) {
+                const services = shippingCosts[courier][destination];
+                if (services[service]) {
+                    foundCost = services[service].cost;
+                }
+            }
+
+            document.getElementById('shipping-fee-display').textContent = 
+                'Rp ' + foundCost.toLocaleString('id-ID');
+            updateTotal(foundCost);
+        }
+
+        function updateTotal(shippingFee) {
+            const subtotal = {{ $subtotal }};
+            const total = subtotal + shippingFee;
+            document.getElementById('total-payment').textContent = 
+                'Rp ' + total.toLocaleString('id-ID');
+        }
+
+        // Event listener untuk perubahan pilihan ongkir
+        document.getElementById('courier').addEventListener('change', calculateShipping);
+        document.getElementById('service').addEventListener('change', calculateShipping);
+        document.getElementById('destination').addEventListener('change', calculateShipping);
+    </script>
+</body>
 </html>
