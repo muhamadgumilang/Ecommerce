@@ -110,10 +110,12 @@
                             <div>
                                 <div class="mb-1 flex justify-between text-xs">
                                     <span class="font-medium text-slate-500">{{ $month['label'] }}</span>
-                                    <span class="font-semibold text-slate-700">Rp {{ number_format($month['total'], 0, ',', '.') }}</span>
+                                    <span class="font-semibold text-slate-700">Rp
+                                        {{ number_format($month['total'], 0, ',', '.') }}</span>
                                 </div>
                                 <div class="h-2 overflow-hidden rounded-full bg-slate-100">
-                                    <div class="h-full rounded-full bg-emerald-500" style="width: {{ ($month['total'] / $maxMonthlySales) * 100 }}%"></div>
+                                    <div class="h-full rounded-full bg-emerald-500"
+                                        style="width: {{ ($month['total'] / $maxMonthlySales) * 100 }}%"></div>
                                 </div>
                             </div>
                         @endforeach
@@ -126,8 +128,11 @@
                     <div class="mt-5 space-y-4">
                         @forelse ($topProducts as $item)
                             <div class="flex items-center justify-between gap-4">
-                                <p class="truncate text-sm font-semibold text-slate-800">{{ $item->product?->product_name ?? 'Produk dihapus' }}</p>
-                                <span class="shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">{{ $item->total_quantity }} terjual</span>
+                                <p class="truncate text-sm font-semibold text-slate-800">
+                                    {{ $item->product?->product_name ?? 'Produk dihapus' }}</p>
+                                <span
+                                    class="shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">{{ $item->total_quantity }}
+                                    terjual</span>
                             </div>
                         @empty
                             <p class="py-8 text-center text-sm text-slate-400">Belum ada penjualan terverifikasi.</p>
@@ -164,7 +169,8 @@
                     <a href="{{ route('seller.categories.index') }}"
                         class="p-4 bg-slate-50 hover:bg-blue-50 hover:border-blue-200 border border-slate-200 rounded-xl text-center transition group">
                         <span class="text-2xl group-hover:scale-110 transition inline-block">🏷️</span>
-                        <h4 class="mt-2 text-sm font-semibold text-slate-700 group-hover:text-blue-600">Kategori Saya</h4>
+                        <h4 class="mt-2 text-sm font-semibold text-slate-700 group-hover:text-blue-600">Kategori Saya
+                        </h4>
                     </a>
 
                     <a href="{{ route('catalog.index') }}"
@@ -202,53 +208,55 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm">
-                            @forelse ($recentOrders as $order)
-                                <tr class="hover:bg-slate-50/60 transition">
-                                    <td class="py-4 px-6 font-semibold text-slate-800">#{{ $order->order_id }}</td>
-                                    <td class="py-4 px-6 text-slate-600">{{ $order->customer?->name ?? '-' }}</td>
-                                    <td class="py-4 px-6 text-slate-500 text-xs">
-                                        {{ $order->order_date ? $order->order_date->format('d M Y, H:i') : '-' }}
-                                    </td>
-                                    <td class="py-4 px-6">
-                                        <div class="space-y-1">
-                                            @foreach ($order->orderDetails as $detail)
-                                                <div class="text-xs text-slate-700">
-                                                    <span
-                                                        class="font-medium">{{ $detail->product?->product_name }}</span>
-                                                    <span class="text-slate-400">× {{ $detail->quantity }}</span>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </td>
-                                    <td class="py-4 px-6">
-                                        @php
-                                            $stClass = match ($order->order_status) {
-                                                'Completed' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                                                'Shipped' => 'bg-blue-50 text-blue-700 border-blue-200',
-                                                'Processing' => 'bg-amber-50 text-amber-700 border-amber-200',
-                                                'Cancelled' => 'bg-rose-50 text-rose-700 border-rose-200',
-                                                default => 'bg-slate-50 text-slate-600 border-slate-200',
-                                            };
-                                        @endphp
-                                        <span
-                                            class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full border {{ $stClass }}">
-                                            {{ $order->order_status }}
-                                        </span>
-                                    </td>
-                                    <td class="py-4 px-6 text-center">
-                                        <a href="{{ route('seller.orders.show', $order) }}"
-                                            class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-semibold transition inline-block">
-                                            Detail & Proses
-                                        </a>
-                                    </td>
-                                </tr>
-                            @empty
+                            @if ($recentOrders->isNotEmpty())
+                                @foreach ($recentOrders as $order)
+                                    <tr class="hover:bg-slate-50/60 transition">
+                                        <td class="py-4 px-6 font-semibold text-slate-800">#{{ $order->order_id }}</td>
+                                        <td class="py-4 px-6 text-slate-600">{{ $order->customer?->name ?? '-' }}</td>
+                                        <td class="py-4 px-6 text-slate-500 text-xs">
+                                            {{ $order->order_date ? $order->order_date->format('d M Y, H:i') : '-' }}
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            <div class="space-y-1">
+                                                @foreach ($order->orderDetails as $detail)
+                                                    <div class="text-xs text-slate-700">
+                                                        <span
+                                                            class="font-medium">{{ $detail->product?->product_name }}</span>
+                                                        <span class="text-slate-400">× {{ $detail->quantity }}</span>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-6">
+                                            @php
+                                                $stClass = match ($order->order_status) {
+                                                    'Completed' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                                    'Shipped' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                                    'Processing' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                                    'Cancelled' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                                    default => 'bg-slate-50 text-slate-600 border-slate-200',
+                                                };
+                                            @endphp
+                                            <span
+                                                class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full border {{ $stClass }}">
+                                                {{ $order->order_status }}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-6 text-center">
+                                            <a href="{{ route('seller.orders.show', $order) }}"
+                                                class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-semibold transition inline-block">
+                                                Detail & Proses
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @else
                                 <tr>
                                     <td colspan="6" class="py-10 text-center text-slate-400 text-sm">
                                         Belum ada pesanan masuk untuk produk toko Anda.
                                     </td>
                                 </tr>
-                            @endforelse
+                            @endif
                         </tbody>
                     </table>
                 </div>

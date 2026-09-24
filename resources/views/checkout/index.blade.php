@@ -195,7 +195,8 @@
                                 </div>
 
                                 <div>
-                                    <label for="destination" class="block text-sm font-semibold text-slate-800 mb-1.5">
+                                    <label for="destination"
+                                        class="block text-sm font-semibold text-slate-800 mb-1.5">
                                         Tujuan <span class="text-rose-500">*</span>
                                     </label>
                                     <select id="destination" name="destination" required
@@ -209,7 +210,8 @@
                             </div>
 
                             <div>
-                                <label for="shipping_address" class="block text-sm font-semibold text-slate-800 mb-1.5">
+                                <label for="shipping_address"
+                                    class="block text-sm font-semibold text-slate-800 mb-1.5">
                                     Alamat Lengkap Pengiriman <span class="text-rose-500">*</span>
                                 </label>
                                 <textarea id="shipping_address" name="shipping_address" rows="3" required
@@ -364,7 +366,7 @@
         </div>
     </main>
 
-<!-- Footer -->
+    <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
         &copy; {{ date('Y') }} E-Commerce. All rights reserved.
     </footer>
@@ -374,26 +376,36 @@
         const shippingCosts = @json($shippingCosts ?? []);
 
         function calculateShipping() {
-            const courier = document.getElementById('courier').value;
-            const service = document.getElementById('service').value;
+            const courierSelect = document.getElementById('courier');
+            const serviceSelect = document.getElementById('service');
             const destination = document.getElementById('destination').value;
+            let courier = courierSelect.value;
+            let service = serviceSelect.value;
 
-            if (!courier || !service || !destination) {
+            if (!destination) {
                 document.getElementById('shipping-fee-display').textContent = 'Rp 0';
                 updateTotal(0);
                 return;
             }
 
-            // Cari ongkir yang sesuai
-            let foundCost = 0;
-            if (shippingCosts[courier] && shippingCosts[courier][destination]) {
-                const services = shippingCosts[courier][destination];
-                if (services[service]) {
-                    foundCost = services[service].cost;
+            let selectedShipping = shippingCosts[`${courier}|${destination}|${service}`];
+
+            // Saat kombinasi belum tersedia, gunakan tarif pertama untuk tujuan tersebut.
+            if (!selectedShipping) {
+                selectedShipping = Object.values(shippingCosts).find((shipping) =>
+                    String(shipping.destination) === String(destination)
+                );
+
+                if (selectedShipping) {
+                    courier = selectedShipping.courier;
+                    service = selectedShipping.service;
+                    courierSelect.value = courier;
+                    serviceSelect.value = service;
                 }
             }
 
-            document.getElementById('shipping-fee-display').textContent = 
+            const foundCost = selectedShipping ? Number(selectedShipping.cost) : 0;
+            document.getElementById('shipping-fee-display').textContent =
                 'Rp ' + foundCost.toLocaleString('id-ID');
             updateTotal(foundCost);
         }
@@ -401,7 +413,7 @@
         function updateTotal(shippingFee) {
             const subtotal = {{ $subtotal }};
             const total = subtotal + shippingFee;
-            document.getElementById('total-payment').textContent = 
+            document.getElementById('total-payment').textContent =
                 'Rp ' + total.toLocaleString('id-ID');
         }
 
@@ -411,4 +423,5 @@
         document.getElementById('destination').addEventListener('change', calculateShipping);
     </script>
 </body>
+
 </html>

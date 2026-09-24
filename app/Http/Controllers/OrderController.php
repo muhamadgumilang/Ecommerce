@@ -39,16 +39,21 @@ class OrderController extends Controller
             return (int) round((float) $item->product->price) * (int) $item->quantity;
         });
 
-        // Ambil data ongkir yang tersedia (dari database shipping_costs)
-        // Struktur: [courier][destination][service] = {cost, description}
+        // Ambil data ongkir dalam format lookup yang stabil untuk JavaScript.
         $shippingCosts = ShippingCost::where('origin', '1') // Surabaya sebagai origin default
             ->get()
-            ->groupBy(['courier', 'destination'])
-            ->map(function ($destinationGroup) {
-                return $destinationGroup->groupBy('service')->map(function ($serviceGroup) {
-                    return $serviceGroup->first()->only(['cost', 'description']);
-                });
-            });
+            ->mapWithKeys(function ($shipping) {
+                return [
+                    $shipping->courier . '|' . $shipping->destination . '|' . $shipping->service => [
+                        'courier' => $shipping->courier,
+                        'destination' => $shipping->destination,
+                        'service' => $shipping->service,
+                        'cost' => (int) $shipping->cost,
+                        'description' => $shipping->description,
+                    ],
+                ];
+            })
+            ->all();
 
         // Daftar kota tujuan unik
         $destinations = ShippingCost::where('origin', '1')
