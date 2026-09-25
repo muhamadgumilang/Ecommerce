@@ -32,6 +32,8 @@ class ShippingCost extends Model
             'jne' => 'JNE',
             'tiki' => 'TIKI',
             'pos' => 'POS Indonesia',
+            'jnt' => 'J&T',
+            'sicepat' => 'SiCepat',
             default => $this->courier,
         };
     }

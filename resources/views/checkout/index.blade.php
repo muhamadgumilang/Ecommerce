@@ -156,9 +156,14 @@
                                 <span class="text-slate-400 block font-medium">Metode Kurir</span>
                                 <span class="inline-flex items-center gap-1 font-semibold text-emerald-600 mt-0.5">
                                     <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
-                                    Pilihan Ongkir
+                                    Asal: {{ $originAddress ?? 'Dayeuhkolot, Cibedug, RT 4 RW 2' }}
                                 </span>
                             </div>
+                        </div>
+
+                        <div class="mb-5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-xs text-blue-700">
+                            <span class="font-semibold">Estimasi berat pesanan:</span>
+                            {{ number_format($totalWeight ?? 0, 0, ',', '.') }} gram
                         </div>
 
                         <!-- Checkout Form -->
@@ -166,46 +171,125 @@
                             class="space-y-4">
                             @csrf
 
-                            <!-- Pilihan Ongkir -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label for="courier" class="block text-sm font-semibold text-slate-800 mb-1.5">
-                                        Kurir <span class="text-rose-500">*</span>
-                                    </label>
-                                    <select id="courier" name="courier" required
-                                        class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-                                        <option value="">-- Pilih Kurir --</option>
-                                        <option value="jne">JNE</option>
-                                        <option value="tiki">TIKI</option>
-                                        <option value="pos">POS Indonesia</option>
-                                    </select>
+                            <!-- Cek Ongkir ala RajaOngkir -->
+                            <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 sm:p-5 shadow-inner shadow-slate-100/80">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 mb-2">Dari</label>
+                                        <div class="flex h-12 items-center rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-medium text-slate-800 shadow-sm">
+                                            {{ $originAddress ?? 'Dayeuhkolot, Cibedug, RT 4 RW 2' }}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="province_id" class="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 mb-2">Provinsi</label>
+                                        <select id="province_id" name="destination_province" required class="h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-800 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+                                            <option value="">Pilih provinsi</option>
+                                            <option value="11">ACEH</option>
+                                            <option value="12">SUMATERA UTARA</option>
+                                            <option value="13">SUMATERA BARAT</option>
+                                            <option value="14">RIAU</option>
+                                            <option value="15">JAMBI</option>
+                                            <option value="16">SUMATERA SELATAN</option>
+                                            <option value="17">BENGKULU</option>
+                                            <option value="18">LAMPUNG</option>
+                                            <option value="19">KEPULAUAN BANGKA BELITUNG</option>
+                                            <option value="21">KEPULAUAN RIAU</option>
+                                            <option value="31">DKI JAKARTA</option>
+                                            <option value="32">JAWA BARAT</option>
+                                            <option value="33">JAWA TENGAH</option>
+                                            <option value="34">JAWA TIMUR</option>
+                                            <option value="35">DI YOGYAKARTA</option>
+                                            <option value="36">BANTEN</option>
+                                            <option value="51">BALI</option>
+                                            <option value="52">NUSA TENGGARA BARAT</option>
+                                            <option value="53">NUSA TENGGARA TIMUR</option>
+                                            <option value="61">KALIMANTAN BARAT</option>
+                                            <option value="62">KALIMANTAN TENGAH</option>
+                                            <option value="63">KALIMANTAN SELATAN</option>
+                                            <option value="64">KALIMANTAN TIMUR</option>
+                                            <option value="65">KALIMANTAN UTARA</option>
+                                            <option value="71">SULAWESI UTARA</option>
+                                            <option value="72">SULAWESI TENGAH</option>
+                                            <option value="73">SULAWESI SELATAN</option>
+                                            <option value="74">SULAWESI TENGGARA</option>
+                                            <option value="75">GORONTALO</option>
+                                            <option value="76">SULAWESI BARAT</option>
+                                            <option value="81">MALUKU</option>
+                                            <option value="82">MALUKU UTARA</option>
+                                            <option value="91">PAPUA BARAT</option>
+                                            <option value="92">PAPUA</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 mb-2">Berat</label>
+                                        <div class="flex h-12 items-center rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-medium text-slate-800 shadow-sm">
+                                            {{ number_format($totalWeight ?? 0, 0, ',', '.') }} gram
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <label for="service" class="block text-sm font-semibold text-slate-800 mb-1.5">
-                                        Layanan <span class="text-rose-500">*</span>
-                                    </label>
-                                    <select id="service" name="service" required
-                                        class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-                                        <option value="">-- Pilih Layanan --</option>
-                                        <option value="REG">REG (Reguler)</option>
-                                        <option value="YES">YES (Same Day)</option>
-                                        <option value="OKE">OKE (Ekonomi)</option>
-                                    </select>
+                                <input type="hidden" id="courier" name="courier" required>
+                                <input type="hidden" id="service" name="service" required>
+                                <input type="hidden" id="destination" name="destination" value="531" required>
+
+                                <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="destination_regency" class="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 mb-2">Kabupaten/Kota</label>
+                                        <select id="destination_regency" name="destination_regency" required disabled
+                                            class="h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-800 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400">
+                                            <option value="">Pilih provinsi terlebih dahulu</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="destination_district" class="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 mb-2">Kecamatan</label>
+                                        <select id="destination_district" name="destination_district" required disabled
+                                            class="h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-800 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400">
+                                            <option value="">Pilih kabupaten/kota terlebih dahulu</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="destination_village" class="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 mb-2">Desa/Kelurahan</label>
+                                        <select id="destination_village" name="destination_village" required disabled
+                                            class="h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-800 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400">
+                                            <option value="">Pilih kecamatan terlebih dahulu</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="postal_code" class="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 mb-2">Kode Pos</label>
+                                        <input type="text" id="postal_code" name="postal_code" required inputmode="numeric" pattern="[0-9]{5}" maxlength="5"
+                                            value="{{ old('postal_code') }}" placeholder="Otomatis / isi 5 digit"
+                                            class="h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-800 shadow-sm transition placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <label for="destination"
-                                        class="block text-sm font-semibold text-slate-800 mb-1.5">
-                                        Tujuan <span class="text-rose-500">*</span>
-                                    </label>
-                                    <select id="destination" name="destination" required
-                                        class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-                                        <option value="">-- Pilih Tujuan --</option>
-                                        <option value="531">Jakarta Pusat</option>
-                                        <option value="113">Jakarta Timur</option>
-                                        <option value="153">Jakarta Barat</option>
-                                    </select>
+                                <div class="mt-5 flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                                    <div>
+                                        <h3 class="font-bold text-slate-900">Pilih ekspedisi</h3>
+                                        <p class="mt-1 text-xs text-slate-500">Harga dihitung berdasarkan tujuan dan berat pesanan.</p>
+                                    </div>
+                                    <span id="selected-shipping-label" class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1.5 text-[11px] font-semibold text-amber-700">Belum dipilih</span>
+                                </div>
+
+                                <div id="shipping-options" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                                    @foreach ($shippingCosts as $shipping)
+                                        <button type="button"
+                                            class="shipping-option flex h-full flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-amber-400 hover:shadow-md"
+                                            data-courier="{{ $shipping['courier'] }}"
+                                            data-service="{{ $shipping['service'] }}"
+                                            data-destination="{{ $shipping['destination'] }}"
+                                            data-cost="{{ $shipping['cost'] }}"
+                                            data-description="{{ $shipping['description'] }}"
+                                            data-etd="{{ $shipping['etd'] }}">
+                                            <div class="flex items-start justify-between gap-2">
+                                                <span class="font-bold uppercase text-slate-900">{{ $shipping['courier'] }}</span>
+                                                <span class="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-500">COD & NON COD</span>
+                                            </div>
+                                            <p class="mt-4 text-xs text-slate-500">{{ $shipping['description'] }}</p>
+                                            <p class="mt-2 text-lg font-bold text-slate-900">Rp {{ number_format($shipping['cost'], 0, ',', '.') }}</p>
+                                            <p class="mt-1 text-[11px] text-slate-400">Estimasi {{ $shipping['etd'] }} hari</p>
+                                            <span class="mt-4 block rounded-xl bg-amber-400 px-3 py-2 text-center text-[11px] font-bold text-slate-950">Pilih layanan</span>
+                                        </button>
+                                    @endforeach
                                 </div>
                             </div>
 
@@ -372,42 +456,465 @@
     </footer>
 
     <script>
-        // Data ongkir dari database (dikirim dari controller)
-        const shippingCosts = @json($shippingCosts ?? []);
+        const destinationInput = document.getElementById('destination');
+        const provinceSelect = document.getElementById('province_id');
+        const regencySelect = document.getElementById('destination_regency');
+        const districtSelect = document.getElementById('destination_district');
+        const villageSelect = document.getElementById('destination_village');
+        const postalCodeInput = document.getElementById('postal_code');
+        const courierInput = document.getElementById('courier');
+        const serviceInput = document.getElementById('service');
+        let shippingOptions = [...document.querySelectorAll('.shipping-option')];
 
-        function calculateShipping() {
-            const courierSelect = document.getElementById('courier');
-            const serviceSelect = document.getElementById('service');
-            const destination = document.getElementById('destination').value;
-            let courier = courierSelect.value;
-            let service = serviceSelect.value;
+        const locationApi = @json(route('shipping.locations'));
+        const costApi = @json(route('shipping.cost'));
+        const defaultOrigin = 'dayeuhkolot-cibedug-rt4-rw2';
+        const initialShippingOptions = @json($shippingCosts ?? []);
+        const fallbackLocations = {
+            province: [
+                { id: '11', name: 'ACEH' },
+                { id: '12', name: 'SUMATERA UTARA' },
+                { id: '13', name: 'SUMATERA BARAT' },
+                { id: '14', name: 'RIAU' },
+                { id: '15', name: 'JAMBI' },
+                { id: '16', name: 'SUMATERA SELATAN' },
+                { id: '17', name: 'BENGKULU' },
+                { id: '18', name: 'LAMPUNG' },
+                { id: '19', name: 'KEPULAUAN BANGKA BELITUNG' },
+                { id: '21', name: 'KEPULAUAN RIAU' },
+                { id: '31', name: 'DKI JAKARTA' },
+                { id: '32', name: 'JAWA BARAT' },
+                { id: '33', name: 'JAWA TENGAH' },
+                { id: '34', name: 'JAWA TIMUR' },
+                { id: '35', name: 'DI YOGYAKARTA' },
+                { id: '36', name: 'BANTEN' },
+                { id: '51', name: 'BALI' },
+                { id: '52', name: 'NUSA TENGGARA BARAT' },
+                { id: '53', name: 'NUSA TENGGARA TIMUR' },
+                { id: '61', name: 'KALIMANTAN BARAT' },
+                { id: '62', name: 'KALIMANTAN TENGAH' },
+                { id: '63', name: 'KALIMANTAN SELATAN' },
+                { id: '64', name: 'KALIMANTAN TIMUR' },
+                { id: '65', name: 'KALIMANTAN UTARA' },
+                { id: '71', name: 'SULAWESI UTARA' },
+                { id: '72', name: 'SULAWESI TENGAH' },
+                { id: '73', name: 'SULAWESI SELATAN' },
+                { id: '74', name: 'SULAWESI TENGGARA' },
+                { id: '75', name: 'GORONTALO' },
+                { id: '76', name: 'SULAWESI BARAT' },
+                { id: '81', name: 'MALUKU' },
+                { id: '82', name: 'MALUKU UTARA' },
+                { id: '91', name: 'PAPUA BARAT' },
+                { id: '92', name: 'PAPUA' },
+            ],
+            regency: {
+                '31': [
+                    { id: '3101', name: 'KOTA JAKARTA PUSAT' },
+                    { id: '3171', name: 'KOTA JAKARTA SELATAN' },
+                    { id: '3172', name: 'KOTA JAKARTA BARAT' },
+                    { id: '3173', name: 'KOTA JAKARTA TIMUR' },
+                ],
+                '32': [
+                    { id: '3204', name: 'KABUPATEN BANDUNG' },
+                    { id: '3273', name: 'KOTA BANDUNG' },
+                    { id: '3201', name: 'KABUPATEN BOGOR' },
+                    { id: '3275', name: 'KOTA BEKASI' },
+                ],
+                '36': [
+                    { id: '3601', name: 'KABUPATEN PANDEGLANG' },
+                    { id: '3671', name: 'KOTA TANGERANG' },
+                    { id: '3674', name: 'KOTA TANGERANG SELATAN' },
+                ],
+            },
+            district: {
+                '3204': [
+                    { id: '320425', name: 'DAYEUHKOLOT' },
+                    { id: '320401', name: 'BANDUNG' },
+                    { id: '320426', name: 'CILEUNYI' },
+                    { id: '320427', name: 'UJUNGBERUNG' },
+                ],
+                '3273': [
+                    { id: '327302', name: 'BANDUNG KULON' },
+                    { id: '327303', name: 'BANDUNG WETAN' },
+                    { id: '327304', name: 'ANDIR' },
+                ],
+                '3671': [
+                    { id: '367101', name: 'TANGERANG' },
+                    { id: '367102', name: 'CIPUTAT' },
+                ],
+            },
+            village: {
+                '320425': [
+                    { id: '3204251001', name: 'CIBEDUG' },
+                    { id: '3204251002', name: 'DAYEUHKOLOT' },
+                    { id: '3204251003', name: 'NAGRAK' },
+                ],
+                '367101': [
+                    { id: '3671011001', name: 'TANGERANG' },
+                    { id: '3671011002', name: 'CIPONDOH' },
+                ],
+            }
+        };
 
-            if (!destination) {
-                document.getElementById('shipping-fee-display').textContent = 'Rp 0';
-                updateTotal(0);
+        function normalizeLocations(payload) {
+            if (Array.isArray(payload)) {
+                return payload;
+            }
+
+            if (payload && Array.isArray(payload.data)) {
+                return payload.data;
+            }
+
+            if (payload && Array.isArray(payload.results)) {
+                return payload.results;
+            }
+
+            return [];
+        }
+
+        function getFallbackLocations(type, parentId = null) {
+            if (type === 'province') {
+                return fallbackLocations.province;
+            }
+
+            if (!parentId) {
+                return [];
+            }
+
+            const direct = fallbackLocations[type]?.[parentId];
+            if (Array.isArray(direct) && direct.length) {
+                return direct;
+            }
+
+            if (type === 'regency') {
+                return fallbackLocations.regency['32'] ?? [];
+            }
+
+            if (type === 'district') {
+                return fallbackLocations.district['3204'] ?? [];
+            }
+
+            if (type === 'village') {
+                return fallbackLocations.village['320425'] ?? [];
+            }
+
+            return [];
+        }
+
+        function setSelectOptions(select, items, placeholder) {
+            const safeItems = Array.isArray(items) ? items : [];
+            select.innerHTML = `<option value="">${placeholder}</option>`;
+            safeItems.forEach((item) => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = item.name;
+                option.dataset.name = item.name;
+                select.appendChild(option);
+            });
+            select.disabled = safeItems.length === 0;
+        }
+
+        function seedFallbackSelects() {
+            setSelectOptions(provinceSelect, getFallbackLocations('province'), 'Pilih provinsi');
+            provinceSelect.value = '32';
+
+            const regencyFallback = getFallbackLocations('regency', '32');
+            setSelectOptions(regencySelect, regencyFallback, 'Pilih kabupaten/kota');
+            if (regencyFallback.length) {
+                regencySelect.value = regencyFallback[0].id;
+            }
+
+            const districtFallback = getFallbackLocations('district', regencyFallback[0]?.id || '3204');
+            setSelectOptions(districtSelect, districtFallback, 'Pilih kecamatan');
+            if (districtFallback.length) {
+                districtSelect.value = districtFallback[0].id;
+            }
+
+            const villageFallback = getFallbackLocations('village', districtFallback[0]?.id || '320425');
+            setSelectOptions(villageSelect, villageFallback, 'Pilih desa/kelurahan');
+            if (villageFallback.length) {
+                villageSelect.value = villageFallback[0].id;
+            }
+
+            destinationInput.value = '531';
+        }
+
+        async function fetchJsonWithTimeout(url, timeoutMs = 2500) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+            try {
+                const response = await fetch(url, {
+                    signal: controller.signal,
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                });
+
+                if (response.redirected || response.type === 'opaqueredirect') {
+                    throw new Error('Request redirected to login or unavailable resource.');
+                }
+
+                const text = await response.text();
+
+                if (!response.ok) {
+                    throw new Error(`Request failed with status ${response.status}: ${text.slice(0, 120)}`);
+                }
+
+                if (!text) {
+                    return null;
+                }
+
+                try {
+                    return JSON.parse(text);
+                } catch (parseError) {
+                    throw new Error(`Invalid JSON response: ${text.slice(0, 120)}`);
+                }
+            } finally {
+                clearTimeout(timer);
+            }
+        }
+
+        async function loadLocations(url, select, placeholder, type = null, parentId = null) {
+            const params = new URLSearchParams(url.split('?')[1] || '');
+            const resolvedType = type || params.get('type');
+            const resolvedParentId = parentId ?? params.get('parent');
+            const fallback = getFallbackLocations(resolvedType, resolvedParentId);
+
+            if (fallback.length) {
+                setSelectOptions(select, fallback, placeholder);
+            } else {
+                select.disabled = true;
+                select.innerHTML = `<option value="">Tidak tersedia</option>`;
+            }
+
+            try {
+                const payload = await fetchJsonWithTimeout(url, 900);
+                const locations = normalizeLocations(payload);
+                const data = Array.isArray(locations) && locations.length ? locations : fallback;
+
+                if (Array.isArray(data) && data.length) {
+                    setSelectOptions(select, data, placeholder);
+                    return data;
+                }
+
+                setSelectOptions(select, fallback, placeholder);
+                return fallback;
+            } catch (error) {
+                if (fallback.length) {
+                    setSelectOptions(select, fallback, placeholder);
+                    return fallback;
+                }
+
+                select.disabled = true;
+                select.innerHTML = `<option value="">Tidak tersedia</option>`;
+                return [];
+            }
+        }
+
+        function setFallbackLocations() {
+            setSelectOptions(provinceSelect, getFallbackLocations('province'), 'Pilih provinsi');
+            setSelectOptions(regencySelect, getFallbackLocations('regency', '32'), 'Pilih kabupaten/kota');
+            setSelectOptions(districtSelect, getFallbackLocations('district', '3204'), 'Pilih kecamatan');
+            setSelectOptions(villageSelect, getFallbackLocations('village', '320425'), 'Pilih desa/kelurahan');
+            postalCodeInput.value = postalCodeInput.value || '40257';
+        }
+
+        async function loadProvinces() {
+            const fallback = getFallbackLocations('province');
+            setSelectOptions(provinceSelect, fallback, 'Pilih provinsi');
+
+            try {
+                const provinces = await loadLocations(`${locationApi}?type=province`, provinceSelect, 'Pilih provinsi', 'province');
+                if (!provinces.length) {
+                    setFallbackLocations();
+                    return;
+                }
+
+                const westJava = provinces.find((province) => province.name.toLowerCase().includes('jawa barat'));
+                if (westJava) {
+                    provinceSelect.value = westJava.id;
+                    provinceSelect.dispatchEvent(new Event('change'));
+                }
+            } catch (error) {
+                setFallbackLocations();
+            }
+        }
+
+        provinceSelect.addEventListener('change', async () => {
+            if (!provinceSelect.value) {
+                setSelectOptions(regencySelect, [], 'Pilih provinsi terlebih dahulu');
+                setSelectOptions(districtSelect, [], 'Pilih kabupaten/kota terlebih dahulu');
+                setSelectOptions(villageSelect, [], 'Pilih kecamatan terlebih dahulu');
                 return;
             }
 
-            let selectedShipping = shippingCosts[`${courier}|${destination}|${service}`];
-
-            // Saat kombinasi belum tersedia, gunakan tarif pertama untuk tujuan tersebut.
-            if (!selectedShipping) {
-                selectedShipping = Object.values(shippingCosts).find((shipping) =>
-                    String(shipping.destination) === String(destination)
-                );
-
-                if (selectedShipping) {
-                    courier = selectedShipping.courier;
-                    service = selectedShipping.service;
-                    courierSelect.value = courier;
-                    serviceSelect.value = service;
-                }
+            const fallback = getFallbackLocations('regency', provinceSelect.value);
+            setSelectOptions(regencySelect, fallback, 'Pilih kabupaten/kota');
+            if (fallback.length) {
+                regencySelect.value = fallback[0].id;
+                regencySelect.dispatchEvent(new Event('change'));
+            } else {
+                setSelectOptions(districtSelect, [], 'Pilih kabupaten/kota terlebih dahulu');
+                setSelectOptions(villageSelect, [], 'Pilih kecamatan terlebih dahulu');
             }
 
-            const foundCost = selectedShipping ? Number(selectedShipping.cost) : 0;
-            document.getElementById('shipping-fee-display').textContent =
-                'Rp ' + foundCost.toLocaleString('id-ID');
+            await loadLocations(`${locationApi}?type=regency&parent=${provinceSelect.value}`, regencySelect, 'Pilih kabupaten/kota', 'regency', provinceSelect.value);
+        });
+
+        regencySelect.addEventListener('change', async () => {
+            if (!regencySelect.value) {
+                setSelectOptions(districtSelect, [], 'Pilih kabupaten/kota terlebih dahulu');
+                setSelectOptions(villageSelect, [], 'Pilih kecamatan terlebih dahulu');
+                return;
+            }
+
+            const regencyName = regencySelect.options[regencySelect.selectedIndex]?.textContent?.toLowerCase() || '';
+            destinationInput.value = regencyName.includes('jakarta timur') ? '113' : regencyName.includes('jakarta barat') ? '153' : '531';
+
+            const fallback = getFallbackLocations('district', regencySelect.value);
+            setSelectOptions(districtSelect, fallback, 'Pilih kecamatan');
+            if (fallback.length) {
+                districtSelect.value = fallback[0].id;
+                districtSelect.dispatchEvent(new Event('change'));
+            } else {
+                setSelectOptions(villageSelect, [], 'Pilih kecamatan terlebih dahulu');
+            }
+
+            await loadLocations(`${locationApi}?type=district&parent=${regencySelect.value}`, districtSelect, 'Pilih kecamatan', 'district', regencySelect.value);
+        });
+
+        districtSelect.addEventListener('change', async () => {
+            if (!districtSelect.value) {
+                setSelectOptions(villageSelect, [], 'Pilih kecamatan terlebih dahulu');
+                return;
+            }
+
+            const fallback = getFallbackLocations('village', districtSelect.value);
+            setSelectOptions(villageSelect, fallback, 'Pilih desa/kelurahan');
+            if (fallback.length) {
+                villageSelect.value = fallback[0].id;
+                villageSelect.dispatchEvent(new Event('change'));
+            }
+
+            await loadLocations(`${locationApi}?type=village&parent=${districtSelect.value}`, villageSelect, 'Pilih desa/kelurahan', 'village', districtSelect.value);
+        });
+
+        villageSelect.addEventListener('change', async () => {
+            const villageName = villageSelect.options[villageSelect.selectedIndex]?.textContent?.toLowerCase() || '';
+            if (villageName.includes('cibedug') && !postalCodeInput.value) postalCodeInput.value = '40257';
+
+            await refreshShippingOptions();
+        });
+
+        function normalizeShippingOption(option, fallbackCourier = null) {
+            const courier = (option?.courier ?? fallbackCourier ?? '').toLowerCase();
+            const service = (option?.service ?? '').toUpperCase();
+            const description = option?.description ?? `${courier.toUpperCase()} ${service}`;
+
+            const normalizedCost = Array.isArray(option?.cost)
+                ? (Number(option.cost[0]?.value ?? option.cost[0]?.cost ?? 0))
+                : Number(option?.cost ?? option?.price ?? 0);
+
+            const etdValue = Number(option?.etd ?? (option?.cost && Array.isArray(option.cost) ? option.cost[0]?.etd?.match(/\d+/)?.[0] ?? 3 : 3));
+
+            return {
+                courier,
+                service,
+                description,
+                cost: Number.isFinite(normalizedCost) ? normalizedCost : 0,
+                etd: Number.isFinite(etdValue) ? etdValue : 3,
+                destination: option?.destination ?? destinationInput.value || '531',
+            };
+        }
+
+        function buildShippingCard(option) {
+            const normalized = normalizeShippingOption(option, option?.courier ?? 'jne');
+            return `
+                <button type="button"
+                    class="shipping-option text-left rounded-xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-amber-400 hover:shadow-md"
+                    data-courier="${normalized.courier}"
+                    data-service="${normalized.service}"
+                    data-destination="${normalized.destination}"
+                    data-cost="${normalized.cost}"
+                    data-description="${normalized.description}"
+                    data-etd="${normalized.etd}">
+                    <div class="flex items-start justify-between gap-2">
+                        <span class="font-bold uppercase text-slate-900">${normalized.courier}</span>
+                        <span class="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-500">COD & NON COD</span>
+                    </div>
+                    <p class="mt-5 text-xs text-slate-500">${normalized.description}</p>
+                    <p class="mt-1 text-lg font-bold text-slate-900">Rp ${Number(normalized.cost).toLocaleString('id-ID')}</p>
+                    <p class="mt-1 text-[11px] text-slate-400">Estimasi ${normalized.etd} hari</p>
+                    <span class="mt-3 block rounded-lg bg-amber-400 px-3 py-2 text-center text-xs font-bold text-slate-950">Pilih layanan</span>
+                </button>
+            `;
+        }
+
+        function renderShippingOptions(options) {
+            const list = Array.isArray(options) && options.length ? options : initialShippingOptions;
+            const parsed = list.map((option) => normalizeShippingOption(option, option?.courier ?? 'jne'));
+
+            const container = document.getElementById('shipping-options');
+            container.innerHTML = parsed.map(buildShippingCard).join('');
+
+            shippingOptions = [...container.querySelectorAll('.shipping-option')];
+            shippingOptions.forEach((option) => {
+                option.addEventListener('click', () => selectShipping(option));
+            });
+
+            filterShippingOptions();
+        }
+
+        async function refreshShippingOptions() {
+            const destination = destinationInput.value || '531';
+            const weight = {{ $totalWeight ?? 0 }};
+            const couriers = ['jne', 'tiki', 'pos'];
+
+            try {
+                const requests = couriers.map(async (courier) => {
+                    const url = `${costApi}?origin=${encodeURIComponent(defaultOrigin)}&destination=${encodeURIComponent(destination)}&weight=${weight}&courier=${encodeURIComponent(courier)}`;
+                    const payload = await fetchJsonWithTimeout(url, 1800);
+                    return Array.isArray(payload) ? payload : [];
+                });
+
+                const results = await Promise.allSettled(requests);
+                const flattened = results
+                    .filter((result) => result.status === 'fulfilled')
+                    .flatMap((result) => Array.isArray(result.value) ? result.value : [])
+                    .filter(Boolean);
+
+                if (flattened.length) {
+                    renderShippingOptions(flattened);
+                    return;
+                }
+            } catch (error) {
+                console.error('Shipping cost refresh failed:', error);
+            }
+
+            renderShippingOptions(initialShippingOptions);
+        }
+
+        function selectShipping(card) {
+            shippingOptions.forEach((option) => option.classList.remove('border-amber-500', 'ring-2', 'ring-amber-200', 'bg-amber-50'));
+            card.classList.add('border-amber-500', 'ring-2', 'ring-amber-200', 'bg-amber-50');
+            courierInput.value = card.dataset.courier;
+            serviceInput.value = card.dataset.service;
+            document.getElementById('selected-shipping-label').textContent = `${card.dataset.description} dipilih`;
+            const foundCost = Number(card.dataset.cost);
+            document.getElementById('shipping-fee-display').textContent = 'Rp ' + foundCost.toLocaleString('id-ID');
             updateTotal(foundCost);
+        }
+
+        function filterShippingOptions() {
+            const destination = destinationInput.value;
+            const visible = shippingOptions.filter((option) => option.dataset.destination === destination);
+            shippingOptions.forEach((option) => {
+                option.classList.toggle('hidden', option.dataset.destination !== destination);
+            });
+            if (visible.length) selectShipping(visible[0]);
         }
 
         function updateTotal(shippingFee) {
@@ -417,10 +924,10 @@
                 'Rp ' + total.toLocaleString('id-ID');
         }
 
-        // Event listener untuk perubahan pilihan ongkir
-        document.getElementById('courier').addEventListener('change', calculateShipping);
-        document.getElementById('service').addEventListener('change', calculateShipping);
-        document.getElementById('destination').addEventListener('change', calculateShipping);
+        renderShippingOptions(initialShippingOptions);
+        filterShippingOptions();
+        seedFallbackSelects();
+        loadProvinces();
     </script>
 </body>
 

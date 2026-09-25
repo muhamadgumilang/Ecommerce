@@ -195,70 +195,30 @@
                     </a>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left min-w-[700px]">
-                        <thead class="bg-slate-50 text-slate-400 text-xs uppercase font-semibold">
-                            <tr>
-                                <th class="py-3.5 px-6">ID Pesanan</th>
-                                <th class="py-3.5 px-6">Pembeli</th>
-                                <th class="py-3.5 px-6">Tanggal</th>
-                                <th class="py-3.5 px-6">Item Toko Anda</th>
-                                <th class="py-3.5 px-6">Status</th>
-                                <th class="py-3.5 px-6 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 text-sm">
-                            @if ($recentOrders->isNotEmpty())
-                                @foreach ($recentOrders as $order)
-                                    <tr class="hover:bg-slate-50/60 transition">
-                                        <td class="py-4 px-6 font-semibold text-slate-800">#{{ $order->order_id }}</td>
-                                        <td class="py-4 px-6 text-slate-600">{{ $order->customer?->name ?? '-' }}</td>
-                                        <td class="py-4 px-6 text-slate-500 text-xs">
-                                            {{ $order->order_date ? $order->order_date->format('d M Y, H:i') : '-' }}
-                                        </td>
-                                        <td class="py-4 px-6">
-                                            <div class="space-y-1">
-                                                @foreach ($order->orderDetails as $detail)
-                                                    <div class="text-xs text-slate-700">
-                                                        <span
-                                                            class="font-medium">{{ $detail->product?->product_name }}</span>
-                                                        <span class="text-slate-400">× {{ $detail->quantity }}</span>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </td>
-                                        <td class="py-4 px-6">
-                                            @php
-                                                $stClass = match ($order->order_status) {
-                                                    'Completed' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                                                    'Shipped' => 'bg-blue-50 text-blue-700 border-blue-200',
-                                                    'Processing' => 'bg-amber-50 text-amber-700 border-amber-200',
-                                                    'Cancelled' => 'bg-rose-50 text-rose-700 border-rose-200',
-                                                    default => 'bg-slate-50 text-slate-600 border-slate-200',
-                                                };
-                                            @endphp
-                                            <span
-                                                class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full border {{ $stClass }}">
-                                                {{ $order->order_status }}
-                                            </span>
-                                        </td>
-                                        <td class="py-4 px-6 text-center">
-                                            <a href="{{ route('seller.orders.show', $order) }}"
-                                                class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-semibold transition inline-block">
-                                                Detail & Proses
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @else
-                                <tr>
-                                    <td colspan="6" class="py-10 text-center text-slate-400 text-sm">
-                                        Belum ada pesanan masuk untuk produk toko Anda.
-                                    </td>
-                                </tr>
-                            @endif
-                        </tbody>
-                    </table>
+                <div class="p-6 text-sm text-slate-600">
+                    @if (!empty($recentOrders) && $recentOrders->count() > 0)
+                        <div class="space-y-3">
+                            @foreach ($recentOrders->take(5) as $order)
+                                <div class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                    <div>
+                                        <div class="font-semibold text-slate-800">#{{ $order->order_id }}</div>
+                                        <div class="mt-1 text-xs text-slate-500">{{ $order->customer?->name ?? '-' }}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-xs text-slate-500">{{ $order->order_status }}</div>
+                                        <a href="{{ route('seller.orders.show', $order) }}"
+                                            class="mt-1 inline-block text-xs font-semibold text-blue-600 hover:text-blue-700">
+                                            Detail
+                                        </a>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="py-8 text-center text-slate-400">
+                            Belum ada pesanan masuk untuk produk toko Anda.
+                        </div>
+                    @endif
                 </div>
             </div>
 

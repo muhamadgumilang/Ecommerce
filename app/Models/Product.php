@@ -17,8 +17,13 @@ class Product extends Model
         'product_name',
         'price',
         'stock',
+        'weight_gram',
         'description',
         'image', // <-- Tambahkan baris ini
+    ];
+
+    protected $casts = [
+        'weight_gram' => 'integer',
     ];
 
     public function getRouteKeyName()

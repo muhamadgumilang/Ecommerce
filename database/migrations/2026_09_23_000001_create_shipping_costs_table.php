@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('shipping_costs', function (Blueprint $table) {
             $table->id('shipping_cost_id');
-            $table->string('origin', 10)->comment('Kode asal (city_id)');
+            $table->string('origin', 100)->comment('Kode atau identitas asal pengiriman');
             $table->string('destination', 10)->comment('Kode tujuan (city_id)');
             $table->string('courier', 10)->comment('Jasa pengiriman: jne, tiki, pos)');
             $table->string('service', 30)->comment('Layanan: REG, YES, OKE, DST');

@@ -62,8 +62,8 @@
                         </div>
                     </div>
 
-                    <!-- Stok & Foto Produk -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <!-- Stok, Berat & Foto Produk -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                         <div>
                             <label for="stock" class="block text-sm font-semibold text-slate-700 mb-1">
                                 Jumlah Stok <span class="text-rose-500">*</span>
@@ -71,6 +71,18 @@
                             <input type="number" name="stock" id="stock" value="{{ old('stock', $product->stock) }}" required min="0"
                                 class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5 px-3.5">
                             @error('stock')
+                                <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="weight_gram" class="block text-sm font-semibold text-slate-700 mb-1">
+                                Berat Produk (gram) <span class="text-rose-500">*</span>
+                            </label>
+                            <input type="number" name="weight_gram" id="weight_gram" value="{{ old('weight_gram', $product->weight_gram ?? 1000) }}" required min="1"
+                                class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5 px-3.5"
+                                placeholder="Contoh: 750">
+                            @error('weight_gram')
                                 <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
                             @enderror
                         </div>

@@ -38,6 +38,7 @@ class ProductController extends Controller
             'product_name' => 'required|string|max:150',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
+            'weight_gram' => 'required|integer|min:1|max:100000',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
@@ -53,6 +54,7 @@ class ProductController extends Controller
             'product_name' => $request->product_name,
             'price' => $request->input('price'),
             'stock' => $request->integer('stock'),
+            'weight_gram' => $request->integer('weight_gram'),
             'description' => $request->input('description'),
             'image' => $imagePath,
         ]);
@@ -85,6 +87,7 @@ class ProductController extends Controller
             'product_name' => 'required|string|max:150',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
+            'weight_gram' => 'required|integer|min:1|max:100000',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
@@ -103,6 +106,7 @@ class ProductController extends Controller
             'product_name' => $request->product_name,
             'price' => $request->input('price'),
             'stock' => $request->integer('stock'),
+            'weight_gram' => $request->integer('weight_gram'),
             'description' => $request->input('description'),
             'image' => $imagePath,
         ]);

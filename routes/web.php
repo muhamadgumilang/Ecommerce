@@ -11,6 +11,8 @@ use App\Http\Controllers\OrderController as UserOrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\ShippingController;
+use App\Models\User;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController as PublicProductController;
 use App\Http\Controllers\Admin\DashboardController; // Pastikan controller ini di-import
@@ -30,10 +32,10 @@ Route::apiResource('catalog', CatalogController::class)->only(['index', 'show'])
 // Route Dashboard Cerdas Redirect Sesuai Role
 Route::get('/dashboard', function () {
     $user = Auth::user();
-    if ($user->isAdmin()) {
+    if ($user instanceof User && $user->isAdmin()) {
         return redirect()->route('admin.dashboard');
     }
-    if ($user->isSeller()) {
+    if ($user instanceof User && $user->isSeller()) {
         return redirect()->route('seller.dashboard');
     }
     return redirect()->route('home');
@@ -65,6 +67,8 @@ Route::middleware(['auth', 'verified', 'seller'])->prefix('seller')->name('selle
 
 // Route Manajemen Profil User, Keranjang, Checkout, & Pesanan User
 Route::middleware('auth')->group(function () {
+    Route::get('/shipping/locations', [ShippingController::class, 'locations'])->name('shipping.locations');
+    Route::get('/shipping/cost', [ShippingController::class, 'cost'])->name('shipping.cost');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

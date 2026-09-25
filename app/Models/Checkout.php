@@ -14,6 +14,11 @@ class Checkout extends Model
     protected $fillable = [
         'order_id',
         'shipping_address',
+        'destination_province',
+        'destination_regency',
+        'destination_district',
+        'destination_village',
+        'postal_code',
         'courier',
         'shipping_fee',
         'notes',

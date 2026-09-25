@@ -7,7 +7,7 @@ use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Checkout;
-use App\Models\ShippingCost;
+use App\Services\ShippingCalculator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -39,29 +39,27 @@ class OrderController extends Controller
             return (int) round((float) $item->product->price) * (int) $item->quantity;
         });
 
-        // Ambil data ongkir dalam format lookup yang stabil untuk JavaScript.
-        $shippingCosts = ShippingCost::where('origin', '1') // Surabaya sebagai origin default
-            ->get()
-            ->mapWithKeys(function ($shipping) {
-                return [
-                    $shipping->courier . '|' . $shipping->destination . '|' . $shipping->service => [
-                        'courier' => $shipping->courier,
-                        'destination' => $shipping->destination,
-                        'service' => $shipping->service,
-                        'cost' => (int) $shipping->cost,
-                        'description' => $shipping->description,
-                    ],
-                ];
-            })
-            ->all();
+        $calculator = new ShippingCalculator();
+        $weightPerItemInGram = 1000;
+        $totalWeight = $cart->cartItems->sum(function ($item) use ($weightPerItemInGram) {
+            $weight = $item->product->weight_gram ?? $weightPerItemInGram;
 
-        // Daftar kota tujuan unik
-        $destinations = ShippingCost::where('origin', '1')
-            ->select('destination')
-            ->distinct()
-            ->get();
+            return (int) $weight * (int) $item->quantity;
+        });
 
-        return view('checkout.index', compact('cart', 'subtotal', 'shippingCosts', 'destinations'));
+        $destinations = collect([
+            ['destination' => '531', 'label' => 'Bandung / Dayeuhkolot'],
+            ['destination' => '113', 'label' => 'Jakarta Timur'],
+            ['destination' => '153', 'label' => 'Jakarta Barat'],
+        ]);
+
+        $shippingCosts = $destinations->flatMap(function ($destination) use ($calculator, $totalWeight) {
+            return $calculator->availableOptions($destination['destination'], $totalWeight);
+        })->all();
+
+        $originAddress = 'Dayeuhkolot, Cibedug, RT 4 RW 2';
+
+        return view('checkout.index', compact('cart', 'subtotal', 'shippingCosts', 'destinations', 'originAddress', 'totalWeight'));
     }
 
     public function show(Order $order)
@@ -89,37 +87,52 @@ class OrderController extends Controller
     {
         $fields = $request->validate([
             'shipping_address' => 'required|string',
+            'destination_province' => 'required|string|max:100',
+            'destination_regency' => 'required|string|max:100',
+            'destination_district' => 'required|string|max:100',
+            'destination_village' => 'required|string|max:100',
+            'postal_code' => 'required|digits:5',
             'notes' => 'nullable|string',
-            'courier' => 'nullable|string',
-            'service' => 'nullable|string',
-            'destination' => 'nullable|string',
+            'courier' => 'required|string',
+            'service' => 'required|string',
+            'destination' => 'required|string',
         ]);
 
         // Hitung ongkir berdasarkan pilihan
         $shippingMethod = $request->input('courier', 'Pengiriman Standar');
         $shippingFee = 0;
-        
-        if ($request->courier && $request->service && $request->destination) {
-            $shipping = ShippingCost::where('courier', $request->courier)
-                ->where('service', $request->service)
-                ->where('destination', $request->destination)
-                ->first();
-            if ($shipping) {
-                $shippingFee = $shipping->cost;
-                $shippingMethod = $shipping->courier_label . ' - ' . $shipping->description;
-            }
-        }
 
         $user = Auth::user();
         $cart = Cart::where('customer_id', $user->user_id)->with('cartItems.product')->first();
 
-        if (!$cart || $cart->cartItems->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Keranjang Anda kosong.');
+        $selectedCartItemId = session('checkout_cart_item_id');
+        if ($cart && $selectedCartItemId) {
+            $cart->setRelation('cartItems', $cart->cartItems->where('cart_item_id', (int) $selectedCartItemId)->values());
         }
 
-        $selectedCartItemId = session('checkout_cart_item_id');
-        if ($selectedCartItemId) {
-            $cart->setRelation('cartItems', $cart->cartItems->where('cart_item_id', (int) $selectedCartItemId)->values());
+        $totalWeight = 0;
+
+        if ($cart) {
+            $totalWeight = $cart->cartItems->sum(function ($item) {
+                $weight = $item->product->weight_gram ?? 1000;
+
+                return (int) $weight * (int) $item->quantity;
+            });
+        }
+
+        if ($request->courier && $request->service && $request->destination) {
+            $shippingFee = (new ShippingCalculator())->calculate(
+                $request->courier,
+                $request->service,
+                $request->destination,
+                $totalWeight
+            );
+
+            $shippingMethod = strtoupper($request->courier) . ' - ' . strtoupper($request->service);
+        }
+
+        if (!$cart || $cart->cartItems->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Keranjang Anda kosong.');
         }
 
         if ($cart->cartItems->isEmpty()) {
@@ -160,6 +173,11 @@ class OrderController extends Controller
             Checkout::create([
                 'order_id' => $order->order_id,
                 'shipping_address' => $fields['shipping_address'],
+                'destination_province' => $fields['destination_province'],
+                'destination_regency' => $fields['destination_regency'],
+                'destination_district' => $fields['destination_district'],
+                'destination_village' => $fields['destination_village'],
+                'postal_code' => $fields['postal_code'],
                 'courier' => $shippingMethod,
                 'shipping_fee' => $shippingFee,
                 'notes' => $fields['notes'] ?? null,
