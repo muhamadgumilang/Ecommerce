@@ -95,4 +95,35 @@ class AdminPaymentTest extends TestCase
 
         $response->assertForbidden();
     }
+
+    public function test_admin_can_change_a_customer_role_to_seller(): void
+    {
+        $admin = User::factory()->create(['role' => 'Admin']);
+        $customer = User::factory()->create(['role' => 'Customer']);
+
+        $response = $this->actingAs($admin)->patch(route('admin.users.role', $customer), [
+            'role' => 'Seller',
+        ]);
+
+        $response->assertRedirect(route('admin.users.index'));
+        $this->assertDatabaseHas('users', [
+            'user_id' => $customer->user_id,
+            'role' => 'Seller',
+        ]);
+    }
+
+    public function test_admin_cannot_change_their_own_role(): void
+    {
+        $admin = User::factory()->create(['role' => 'Admin']);
+
+        $response = $this->actingAs($admin)->patch(route('admin.users.role', $admin), [
+            'role' => 'Customer',
+        ]);
+
+        $response->assertForbidden();
+        $this->assertDatabaseHas('users', [
+            'user_id' => $admin->user_id,
+            'role' => 'Admin',
+        ]);
+    }
 }

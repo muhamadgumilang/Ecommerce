@@ -35,34 +35,45 @@
         </select>
     </div>
 
-    <!-- Input Foto Produk -->
     <div class="mb-4">
-        <label for="image" class="block text-sm font-medium text-slate-700 mb-2">Foto Produk</label>
-
-        @if (!empty($product->image))
-            <div class="mb-2 flex items-center space-x-3">
-                <div class="w-16 h-16 rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
-                    <img src="{{ asset('storage/' . $product->image) }}" alt="Preview" class="w-full h-full object-cover">
-                </div>
-                <span class="text-xs text-slate-500">Foto saat ini (biarkan kosong jika tidak ingin mengubah)</span>
+        <label for="images" class="block text-sm font-medium text-slate-700 mb-2">Foto Produk</label>
+        @php($productImages = $product->images ?: array_values(array_filter([$product->image])))
+        @if ($productImages)
+            <div class="mb-3 flex flex-wrap gap-3">
+                @foreach ($productImages as $image)
+                    <label class="relative block">
+                        <img src="{{ asset('storage/' . $image) }}" alt="Foto {{ $product->product_name }}"
+                            class="h-20 w-20 rounded-lg border border-slate-200 object-cover">
+                        <span class="mt-1 flex items-center gap-1 text-xs text-slate-600">
+                            <input type="checkbox" name="remove_images[]" value="{{ $image }}">
+                            Hapus
+                        </span>
+                    </label>
+                @endforeach
             </div>
         @endif
-
-        <input type="file" name="image" id="image" accept="image/*"
+        <input type="file" name="images[]" id="images" accept="image/*" multiple
             class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+        <p class="mt-1 text-xs text-slate-500">Pilih hingga 8 foto. Foto pertama menjadi foto utama.</p>
+        @error('images')
+            <p class="mt-1 text-xs text-rose-600">{{ $message }}</p>
+        @enderror
+        @error('images.*')
+            <p class="mt-1 text-xs text-rose-600">{{ $message }}</p>
+        @enderror
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
             <label for="price" class="block text-sm font-medium text-slate-700 mb-2">Harga</label>
-            <input type="number" name="price" id="price" value="{{ old('price', $product->price ?? '') }}" required
-                min="0" step="0.01"
+            <input type="number" name="price" id="price" value="{{ old('price', $product->price ?? '') }}"
+                required min="0" step="0.01"
                 class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm shadow-sm">
         </div>
         <div>
             <label for="stock" class="block text-sm font-medium text-slate-700 mb-2">Stok</label>
-            <input type="number" name="stock" id="stock" value="{{ old('stock', $product->stock ?? 0) }}" required
-                min="0"
+            <input type="number" name="stock" id="stock" value="{{ old('stock', $product->stock ?? 0) }}"
+                required min="0"
                 class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm shadow-sm">
         </div>
     </div>

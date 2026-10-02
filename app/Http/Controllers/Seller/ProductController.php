@@ -8,6 +8,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
@@ -26,6 +27,7 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::where('owner_id', Auth::id())->get();
+
         return view('seller.products.create', compact('categories'));
     }
 
@@ -40,13 +42,13 @@ class ProductController extends Controller
             'stock' => 'required|integer|min:0',
             'weight_gram' => 'required|integer|min:1|max:100000',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'images' => 'nullable|array|max:8',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('products', 'public');
-        }
+        $imagePaths = collect($request->file('images', []))
+            ->map(fn ($image) => $image->store('products', 'public'))
+            ->all();
 
         Product::create([
             'seller_id' => $request->user()->user_id,
@@ -56,7 +58,8 @@ class ProductController extends Controller
             'stock' => $request->integer('stock'),
             'weight_gram' => $request->integer('weight_gram'),
             'description' => $request->input('description'),
-            'image' => $imagePath,
+            'image' => $imagePaths[0] ?? null,
+            'images' => $imagePaths,
         ]);
 
         return redirect()->route('seller.products.index')->with('success', 'Produk berhasil ditambahkan ke toko Anda.');
@@ -70,6 +73,7 @@ class ProductController extends Controller
         }
 
         $categories = Category::where('owner_id', Auth::id())->get();
+
         return view('seller.products.edit', compact('product', 'categories'));
     }
 
@@ -89,17 +93,28 @@ class ProductController extends Controller
             'stock' => 'required|integer|min:0',
             'weight_gram' => 'required|integer|min:1|max:100000',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'images' => 'nullable|array|max:8',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
+            'remove_images' => 'nullable|array',
+            'remove_images.*' => 'string',
         ]);
 
-        $imagePath = $product->image;
+        $imagePaths = $product->images ?: array_values(array_filter([$product->image]));
+        $removedImages = array_intersect($imagePaths, $request->input('remove_images', []));
+        $imagePaths = array_values(array_diff($imagePaths, $removedImages));
+        $newImages = $request->file('images', []);
 
-        if ($request->hasFile('image')) {
-            if ($product->image && Storage::disk('public')->exists($product->image)) {
-                Storage::disk('public')->delete($product->image);
-            }
-            $imagePath = $request->file('image')->store('products', 'public');
+        if (count($imagePaths) + count($newImages) > 8) {
+            throw ValidationException::withMessages(['images' => 'Maksimal 8 foto untuk setiap produk.']);
         }
+
+        foreach ($removedImages as $image) {
+            Storage::disk('public')->delete($image);
+        }
+
+        $imagePaths = array_merge($imagePaths, collect($newImages)
+            ->map(fn ($image) => $image->store('products', 'public'))
+            ->all());
 
         $product->update([
             'category_id' => $request->integer('category_id'),
@@ -108,7 +123,8 @@ class ProductController extends Controller
             'stock' => $request->integer('stock'),
             'weight_gram' => $request->integer('weight_gram'),
             'description' => $request->input('description'),
-            'image' => $imagePath,
+            'image' => $imagePaths[0] ?? null,
+            'images' => $imagePaths,
         ]);
 
         return redirect()->route('seller.products.index')->with('success', 'Produk berhasil diperbarui.');
@@ -120,8 +136,8 @@ class ProductController extends Controller
             abort(403, 'Akses ditolak. Anda bukan pemilik produk ini.');
         }
 
-        if ($product->image && Storage::disk('public')->exists($product->image)) {
-            Storage::disk('public')->delete($product->image);
+        foreach ($product->images ?: array_filter([$product->image]) as $image) {
+            Storage::disk('public')->delete($image);
         }
 
         $product->cartItems()->delete();

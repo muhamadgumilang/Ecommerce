@@ -53,6 +53,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
     Route::patch('/payments/{payment}', [AdminPaymentController::class, 'update'])->name('payments.update');
     Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::patch('/users/{user}/role', [AdminUserController::class, 'updateRole'])->name('users.role');
 });
 
 // Route Manajemen Seller (Dashboard Toko, Produk Toko, Pesanan Masuk Toko)

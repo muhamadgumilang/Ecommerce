@@ -155,6 +155,16 @@
                     <x-responsive-nav-link :href="route('seller.orders.index')">
                         {{ __('Pesanan Masuk') }}
                     </x-responsive-nav-link>
+                @else
+                    <x-responsive-nav-link :href="route('catalog.index')">
+                        {{ __('Katalog') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('cart.index')">
+                        {{ __('Keranjang') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('orders.index')">
+                        {{ __('Pesanan Saya') }}
+                    </x-responsive-nav-link>
                 @endif
 
                 <x-responsive-nav-link :href="route('profile.edit')">

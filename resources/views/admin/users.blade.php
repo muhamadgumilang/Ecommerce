@@ -22,6 +22,13 @@
                                 <th class="px-6 py-3">Telepon</th>
                                 <th class="px-6 py-3">Peran</th>
                                 <th class="px-6 py-3">Terdaftar</th>
+                                @if (session('success'))
+                                    <div
+                                        class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+                                        {{ session('success') }}
+                                    </div>
+                                @endif
+                                <th class="px-6 py-3">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -50,10 +57,31 @@
                                     </td>
                                     <td class="px-6 py-4 text-slate-500">
                                         {{ $user->created_at?->format('d/m/Y H:i') ?? '-' }}</td>
+                                    <td class="px-6 py-4">
+                                        @if (!$user->isAdmin() && !auth()->user()->is($user))
+                                            <form action="{{ route('admin.users.role', $user) }}" method="POST"
+                                                class="flex min-w-56 items-center gap-2">
+                                                @csrf
+                                                @method('PATCH')
+                                                <select name="role" aria-label="Peran {{ $user->name }}"
+                                                    class="min-w-0 rounded-lg border-slate-200 text-xs">
+                                                    <option value="Customer" @selected($user->role === 'Customer')>Customer
+                                                    </option>
+                                                    <option value="Seller" @selected($user->role === 'Seller')>Seller</option>
+                                                </select>
+                                                <button type="submit"
+                                                    class="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700">
+                                                    Simpan
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span class="text-xs text-slate-400">Tidak tersedia</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-6 py-8 text-center text-slate-400">Belum ada pengguna.
+                                    <td colspan="6" class="px-6 py-8 text-center text-slate-400">Belum ada pengguna.
                                     </td>
                                 </tr>
                             @endforelse

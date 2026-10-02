@@ -231,7 +231,7 @@ class ShippingController extends Controller
 
         return match ($type) {
             'province' => $provinces,
-            'regency' => $regencies[$parentId] ?? array_values($regencies)[0],
+            'regency' => $regencies[$parentId] ?? [],
             'district' => $districts[$parentId] ?? [],
             'village' => $villages[$parentId] ?? [],
             default => [],

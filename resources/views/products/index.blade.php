@@ -107,8 +107,8 @@
                     <div
                         class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md hover:border-blue-300 transition duration-200 flex flex-col group">
                         <div class="h-48 bg-slate-100 relative overflow-hidden flex items-center justify-center">
-                            @if ($product->image)
-                                <img src="{{ asset('storage/' . $product->image) }}"
+                            @if ($product->image || !empty($product->images[0]))
+                                <img src="{{ asset('storage/' . ($product->images[0] ?? $product->image)) }}"
                                     alt="{{ $product->product_name }}"
                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                             @else

@@ -7,12 +7,14 @@ use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Checkout;
+use App\Services\RajaOngkirClient;
 use App\Services\ShippingCalculator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Throwable;
 
 class OrderController extends Controller
 {
@@ -83,7 +85,7 @@ class OrderController extends Controller
         ]);
     }
 
-    public function processCheckout(Request $request)
+    public function processCheckout(Request $request, RajaOngkirClient $rajaOngkir)
     {
         $fields = $request->validate([
             'shipping_address' => 'required|string',
@@ -93,8 +95,8 @@ class OrderController extends Controller
             'destination_village' => 'required|string|max:100',
             'postal_code' => 'required|digits:5',
             'notes' => 'nullable|string',
-            'courier' => 'required|string',
-            'service' => 'required|string',
+            'courier' => 'required|string|in:jne,tiki,pos,jnt,sicepat',
+            'service' => 'required|string|max:50',
             'destination' => 'required|string',
         ]);
 
@@ -121,12 +123,48 @@ class OrderController extends Controller
         }
 
         if ($request->courier && $request->service && $request->destination) {
-            $shippingFee = (new ShippingCalculator())->calculate(
-                $request->courier,
-                $request->service,
-                $request->destination,
-                $totalWeight
+            $destinationId = $fields['destination_regency'];
+            $originId = config('services.rajaongkir.origin');
+            $costOptions = [];
+
+            if ($originId) {
+                try {
+                    $costOptions = $rajaOngkir->cost(
+                        (string) $originId,
+                        $destinationId,
+                        $totalWeight,
+                        $request->courier,
+                    );
+                } catch (Throwable $exception) {
+                    report($exception);
+                }
+            }
+
+            $selectedOption = collect($costOptions)->first(fn ($option) =>
+                strcasecmp((string) data_get($option, 'service', ''), $request->service) === 0
             );
+
+            if ($selectedOption) {
+                $shippingFee = (int) data_get($selectedOption, 'cost.0.value', 0);
+            } elseif (!empty($costOptions)) {
+                throw ValidationException::withMessages([
+                    'service' => 'Layanan pengiriman yang dipilih tidak tersedia untuk tujuan ini.',
+                ]);
+            } else {
+                $fallbackOption = collect((new ShippingCalculator())->availableOptions($destinationId, $totalWeight))
+                    ->first(fn ($option) =>
+                        strcasecmp($option['courier'], $request->courier) === 0
+                        && strcasecmp($option['service'], $request->service) === 0
+                    );
+
+                if (!$fallbackOption) {
+                    throw ValidationException::withMessages([
+                        'service' => 'Layanan pengiriman yang dipilih tidak valid.',
+                    ]);
+                }
+
+                $shippingFee = (int) $fallbackOption['cost'];
+            }
 
             $shippingMethod = strtoupper($request->courier) . ' - ' . strtoupper($request->service);
         }

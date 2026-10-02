@@ -25,12 +25,12 @@
                 <div class="mb-6 flex h-16 items-center gap-3 border-b border-slate-200/80 px-2">
                     <div
                         class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-sky-500 text-lg font-bold text-white shadow-lg shadow-blue-500/25">
-                        {{ Auth::user()->isSeller() ? 'S' : 'A' }}
+                        {{ Auth::user()->isSeller() ? 'S' : (Auth::user()->isCustomer() ? 'C' : 'A') }}
                     </div>
                     <div>
                         <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-500">Panel</p>
                         <span class="text-lg font-bold tracking-wide text-slate-900">
-                            {{ Auth::user()->isSeller() ? 'Seller Center' : 'Admin System' }}
+                            {{ Auth::user()->isSeller() ? 'Seller Center' : (Auth::user()->isCustomer() ? 'Toko' : 'Admin System') }}
                         </span>
                     </div>
                 </div>
@@ -83,7 +83,7 @@
                             <span class="w-5 h-5 mr-3 text-center">🏷️</span>
                             <span class="text-sm font-medium">Kategori Saya</span>
                         </a>
-                    @else
+                    @elseif (Auth::user()->isAdmin())
                         <!-- Dashboard -->
                         <a href="{{ route('admin.dashboard') }}"
                             class="group flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.dashboard') ? 'bg-gradient-to-r from-blue-500 to-sky-400 text-white shadow-lg shadow-blue-200' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-700' }}">
@@ -146,6 +146,27 @@
                                 </path>
                             </svg>
                             <span class="text-sm font-medium">Pengguna</span>
+                        </a>
+                    @else
+                        <a href="{{ route('catalog.index') }}"
+                            class="group flex items-center rounded-xl px-4 py-2.5 text-slate-500 transition-all duration-200 hover:bg-blue-50 hover:text-blue-700">
+                            <span class="mr-3 w-5 text-center">▦</span>
+                            <span class="text-sm font-medium">Katalog Belanja</span>
+                        </a>
+                        <a href="{{ route('cart.index') }}"
+                            class="group flex items-center rounded-xl px-4 py-2.5 transition-all duration-200 {{ request()->routeIs('cart.*') ? 'bg-gradient-to-r from-blue-500 to-sky-400 text-white shadow-lg shadow-blue-200' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-700' }}">
+                            <span class="mr-3 w-5 text-center">🛒</span>
+                            <span class="text-sm font-medium">Keranjang</span>
+                        </a>
+                        <a href="{{ route('orders.index') }}"
+                            class="group flex items-center rounded-xl px-4 py-2.5 transition-all duration-200 {{ request()->routeIs('orders.*') ? 'bg-gradient-to-r from-blue-500 to-sky-400 text-white shadow-lg shadow-blue-200' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-700' }}">
+                            <span class="mr-3 w-5 text-center">▤</span>
+                            <span class="text-sm font-medium">Pesanan Saya</span>
+                        </a>
+                        <a href="{{ route('wishlist.index') }}"
+                            class="group flex items-center rounded-xl px-4 py-2.5 transition-all duration-200 {{ request()->routeIs('wishlist.*') ? 'bg-gradient-to-r from-blue-500 to-sky-400 text-white shadow-lg shadow-blue-200' : 'text-slate-500 hover:bg-blue-50 hover:text-blue-700' }}">
+                            <span class="mr-3 w-5 text-center">♡</span>
+                            <span class="text-sm font-medium">Wishlist</span>
                         </a>
                     @endif
                 </nav>

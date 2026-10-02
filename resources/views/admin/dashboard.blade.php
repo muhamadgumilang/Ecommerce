@@ -18,9 +18,9 @@
             <!-- Statistik Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-indigo-500">
-                    <div class="text-sm font-medium text-gray-500">Produk Admin</div>
+                    <div class="text-sm font-medium text-gray-500">Total Produk</div>
                     <div class="mt-2 text-3xl font-bold text-gray-900">{{ $totalProducts }}</div>
-                    <div class="mt-1 text-xs text-green-600 font-semibold">Produk milik Admin</div>
+                    <div class="mt-1 text-xs text-green-600 font-semibold">Seluruh produk di toko</div>
                 </div>
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-blue-500">
@@ -64,7 +64,7 @@
                         <a href="{{ route('admin.products.index') }}"
                             class="p-4 bg-gray-50 hover:bg-indigo-50 border border-gray-200 rounded-lg text-center transition">
                             <span class="text-2xl">📦</span>
-                            <h4 class="mt-2 font-semibold text-gray-700">Produk Admin</h4>
+                            <h4 class="mt-2 font-semibold text-gray-700">Semua Produk</h4>
                         </a>
 
                         <a href="{{ route('admin.orders.index') }}"
@@ -216,10 +216,12 @@
                             <div>
                                 <div class="mb-1 flex justify-between text-xs">
                                     <span class="font-medium text-slate-500">{{ $month['label'] }}</span>
-                                    <span class="font-semibold text-slate-700">Rp {{ number_format($month['total'], 0, ',', '.') }}</span>
+                                    <span class="font-semibold text-slate-700">Rp
+                                        {{ number_format($month['total'], 0, ',', '.') }}</span>
                                 </div>
                                 <div class="h-2 overflow-hidden rounded-full bg-slate-100">
-                                    <div class="h-full rounded-full bg-blue-600" style="width: {{ ($month['total'] / $maxMonthlySales) * 100 }}%"></div>
+                                    <div class="h-full rounded-full bg-blue-600"
+                                        style="width: {{ ($month['total'] / $maxMonthlySales) * 100 }}%"></div>
                                 </div>
                             </div>
                         @endforeach
@@ -232,8 +234,11 @@
                     <div class="mt-5 space-y-4">
                         @forelse ($topProducts as $item)
                             <div class="flex items-center justify-between gap-4">
-                                <p class="truncate text-sm font-semibold text-slate-800">{{ $item->product?->product_name ?? 'Produk dihapus' }}</p>
-                                <span class="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">{{ $item->total_quantity }} terjual</span>
+                                <p class="truncate text-sm font-semibold text-slate-800">
+                                    {{ $item->product?->product_name ?? 'Produk dihapus' }}</p>
+                                <span
+                                    class="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">{{ $item->total_quantity }}
+                                    terjual</span>
                             </div>
                         @empty
                             <p class="py-8 text-center text-sm text-slate-400">Belum ada penjualan terverifikasi.</p>

@@ -8,15 +8,13 @@ use App\Models\OrderDetail;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
     public function index(): View
     {
-        $adminId = Auth::id();
-        $totalProducts = Product::where('seller_id', $adminId)->count();
+        $totalProducts = Product::count();
         $totalUsers = User::count();
         $totalSellers = User::where('role', 'Seller')->count();
         $totalCustomers = User::where('role', 'Customer')->count();
@@ -33,7 +31,6 @@ class DashboardController extends Controller
             ->take(6)
             ->get();
         $lowStockProducts = Product::with('seller')
-            ->where('seller_id', $adminId)
             ->where('stock', '<=', 5)
             ->orderBy('stock')
             ->take(6)

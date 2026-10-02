@@ -28,7 +28,8 @@
             </a>
 
             <nav class="flex items-center gap-1 sm:gap-2 text-sm">
-                <a href="{{ route('home') }}" class="hidden sm:inline-flex items-center px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition">
+                <a href="{{ route('home') }}"
+                    class="hidden sm:inline-flex items-center px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition">
                     Beranda
                 </a>
                 <a href="{{ route('catalog.index') }}"
@@ -40,8 +41,8 @@
                     Pesanan Saya
                 </a>
                 <a href="{{ route('cart.index') }}"
-                    class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-slate-100 text-lg leading-none text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition" title="Keranjang"
-                    aria-label="Keranjang">
+                    class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-slate-100 text-lg leading-none text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition"
+                    title="Keranjang" aria-label="Keranjang">
                     &#128722;
                 </a>
                 <x-notification-menu />
@@ -68,7 +69,8 @@
                     </a>
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
-                        <button type="submit" class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition">
+                        <button type="submit"
+                            class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition">
                             Keluar
                         </button>
                     </form>
@@ -142,12 +144,13 @@
             <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden p-6 sm:p-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start">
 
+                    @php($productImages = collect($product->images ?: array_filter([$product->image]))->values())
                     <!-- Left: Product Image -->
                     <div class="space-y-4">
                         <div
                             class="w-full aspect-square rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center relative group shadow-inner">
-                            @if ($product->image)
-                                <img src="{{ asset('storage/' . $product->image) }}"
+                            @if ($productImages->isNotEmpty())
+                                <img id="product-main-image" src="{{ asset('storage/' . $productImages->first()) }}"
                                     alt="{{ $product->product_name }}"
                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                             @else
@@ -164,6 +167,18 @@
                                 </span>
                             @endif
                         </div>
+                        @if ($productImages->count() > 1)
+                            <div class="flex gap-3 overflow-x-auto" aria-label="Galeri foto produk">
+                                @foreach ($productImages as $image)
+                                    <button type="button"
+                                        class="product-image-thumb h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 border-transparent"
+                                        data-image="{{ asset('storage/' . $image) }}" aria-label="Lihat foto produk">
+                                        <img src="{{ asset('storage/' . $image) }}" alt=""
+                                            class="h-full w-full object-cover">
+                                    </button>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Right: Product Information & Purchase Controls -->
@@ -180,7 +195,8 @@
                             </div>
                             @auth
                                 @if (Auth::user()->isCustomer())
-                                    <form action="{{ route('wishlist.store', $product) }}" method="POST" class="mb-3">
+                                    <form action="{{ route('wishlist.store', $product) }}" method="POST"
+                                        class="mb-3">
                                         @csrf
                                         <button type="submit"
                                             class="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-100">
@@ -237,17 +253,22 @@
                             </div>
 
                             <!-- Seller / Toko Information -->
-                            <div class="mt-4 p-4 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center justify-between">
+                            <div
+                                class="mt-4 p-4 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center justify-between">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
                                         🏪
                                     </div>
                                     <div>
-                                        <span class="text-[11px] text-slate-400 font-medium block">Dijual oleh Toko:</span>
-                                        <span class="text-sm font-bold text-slate-800">{{ $product->seller?->name ?? 'E-Commerce' }}</span>
+                                        <span class="text-[11px] text-slate-400 font-medium block">Dijual oleh
+                                            Toko:</span>
+                                        <span
+                                            class="text-sm font-bold text-slate-800">{{ $product->seller?->name ?? 'E-Commerce' }}</span>
                                     </div>
                                 </div>
-                                <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span
+                                    class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                                     ✓ Terverifikasi
                                 </span>
                             </div>
@@ -358,6 +379,17 @@
     <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
         &copy; {{ date('Y') }} E-Commerce. All rights reserved.
     </footer>
+
+    <script>
+        document.querySelectorAll('.product-image-thumb').forEach((thumbnail) => {
+            thumbnail.addEventListener('click', () => {
+                document.getElementById('product-main-image').src = thumbnail.dataset.image;
+                document.querySelectorAll('.product-image-thumb').forEach((item) => item.classList.remove(
+                    'border-blue-600'));
+                thumbnail.classList.add('border-blue-600');
+            });
+        });
+    </script>
 
 </body>
 

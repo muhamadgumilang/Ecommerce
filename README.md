@@ -21,6 +21,18 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Konfigurasi RajaOngkir
+
+Atur variabel berikut di file `.env` untuk memakai tarif dan data wilayah dari API:
+
+```env
+RAJAONGKIR_API_KEY=your-api-key
+RAJAONGKIR_BASE_URL=https://api.rajaongkir.com/starter
+RAJAONGKIR_ORIGIN_ID=your-origin-city-id
+```
+
+`RAJAONGKIR_ORIGIN_ID` harus berisi ID kota/kabupaten asal yang dikenali oleh paket API yang digunakan. Setelah mengubah konfigurasi, jalankan `php artisan config:clear`. Kalkulator ongkir lokal hanya menjadi fallback jika API tidak tersedia.
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.

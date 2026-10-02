@@ -17,14 +17,19 @@ class RajaOngkirClient
             default => throw new RuntimeException('Tipe wilayah tidak valid.'),
         };
 
-        $query = $parentId ? ['id' => $parentId] : [];
+        $query = match ($type) {
+            'province' => $parentId ? ['id' => $parentId] : [],
+            'regency' => $parentId ? ['province' => $parentId] : [],
+            'district' => $parentId ? ['city' => $parentId] : [],
+            'village' => $parentId ? ['subdistrict' => $parentId] : [],
+        };
         $response = $this->request()->get($endpoint, $query)->throw()->json();
         $results = data_get($response, 'rajaongkir.results', data_get($response, 'data', []));
 
         return collect($results)->map(function (array $location): array {
             return [
-                'id' => (string) ($location['id'] ?? $location['city_id'] ?? $location['subdistrict_id'] ?? $location['village_id'] ?? ''),
-                'name' => $location['name'] ?? $location['city_name'] ?? $location['subdistrict_name'] ?? $location['village_name'] ?? '',
+                'id' => (string) ($location['id'] ?? $location['province_id'] ?? $location['city_id'] ?? $location['subdistrict_id'] ?? $location['village_id'] ?? ''),
+                'name' => $location['name'] ?? $location['province'] ?? $location['city_name'] ?? $location['subdistrict_name'] ?? $location['village_name'] ?? '',
                 'postal_code' => $location['postal_code'] ?? $location['zip_code'] ?? null,
             ];
         })->filter(fn (array $location) => $location['id'] !== '' && $location['name'] !== '')->values()->all();
@@ -39,7 +44,14 @@ class RajaOngkirClient
             'courier' => $courier,
         ])->throw()->json();
 
-        return data_get($response, 'rajaongkir.results.0.costs', data_get($response, 'data', []));
+        $costs = data_get($response, 'rajaongkir.results.0.costs', data_get($response, 'data', []));
+
+        return collect($costs)->map(function (array $option) use ($courier, $destination): array {
+            return $option + [
+                'courier' => strtolower($courier),
+                'destination' => $destination,
+            ];
+        })->all();
     }
 
     protected function request()

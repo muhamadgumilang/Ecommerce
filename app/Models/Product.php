@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -15,20 +16,42 @@ class Product extends Model
         'seller_id',
         'category_id',
         'product_name',
+        'slug',
         'price',
         'stock',
         'weight_gram',
         'description',
-        'image', // <-- Tambahkan baris ini
+        'image',
+        'images',
     ];
 
     protected $casts = [
         'weight_gram' => 'integer',
+        'images' => 'array',
     ];
 
-    public function getRouteKeyName()
+    protected static function booted(): void
     {
-        return 'product_id';
+        static::saving(function (Product $product): void {
+            if (! $product->slug || ($product->isDirty('product_name') && ! $product->isDirty('slug'))) {
+                $baseSlug = Str::slug($product->product_name) ?: 'product';
+                $slug = $baseSlug;
+                $suffix = 2;
+
+                while (static::query()->where('slug', $slug)
+                    ->when($product->exists, fn ($query) => $query->where('product_id', '!=', $product->product_id))
+                    ->exists()) {
+                    $slug = $baseSlug.'-'.$suffix++;
+                }
+
+                $product->slug = $slug;
+            }
+        });
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
     }
 
     public function seller()
